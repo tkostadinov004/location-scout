@@ -34,9 +34,11 @@ export async function fetch_osm_tags(
     },
   );
 
-  return response.data.choices[0].message.content.split(",").map((s:string) => {
-    const key = s.split("=")[0];
-    const value = s.split("=")[1];
-    return `"${key}"="${value}"`;
-  });
+  return response.data.choices[0].message.content
+    .split(",")
+    .map((s: string) => {
+      const key = s.split("=")[0];
+      const value = s.split("=")[1];
+      return `"${key}"="${value}"`;
+    });
 }

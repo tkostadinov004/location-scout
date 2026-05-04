@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-export async function fetch_from_osm(osm_tags: string[]) : Promise<string> {
+export async function fetch_from_osm(osm_tags: string[]): Promise<string> {
   const nwr_queries: string[] = osm_tags.map(
     (t) => `nwr[${t}](42.590415, 23.218098, 42.786280, 23.492111);`,
   );

@@ -16,9 +16,18 @@ export class FetchedProperty {
   prices: string[] = new Array();
 }
 
-const categories: string[] = ["ofis", "magazin", "tyrgovski-obekt", "promishlen-imot", "zala", "sklad"];
+const categories: string[] = [
+  "ofis",
+  "magazin",
+  "tyrgovski-obekt",
+  "promishlen-imot",
+  "zala",
+  "sklad",
+];
 
-async function fetch_property_details(property_url: string): Promise<FetchedProperty | null> {
+async function fetch_property_details(
+  property_url: string,
+): Promise<FetchedProperty | null> {
   const full_url = `https://www.imoti.net${property_url}`;
   let result: FetchedProperty = new FetchedProperty();
   result.url = full_url;
@@ -33,11 +42,11 @@ async function fetch_property_details(property_url: string): Promise<FetchedProp
       }
       const coords: string = embed_url.value.split("&")[1].split("=")[1];
       if (coords.match("^0(\.0*)?,0(\.0*)?$")) {
-        return;  
+        return;
       }
 
-      result.lat = parseFloat(coords.split(',')[0]);
-      result.lon = parseFloat(coords.split(',')[1]);
+      result.lat = parseFloat(coords.split(",")[0]);
+      result.lon = parseFloat(coords.split(",")[1]);
     });
     if (result.lat == 0 && result.lon == 0) return null;
 
@@ -50,7 +59,7 @@ async function fetch_property_details(property_url: string): Promise<FetchedProp
         result.prices.push(val);
       }
     });
-    
+
     return result;
   } catch (err) {
     console.error(`Error at listing ${full_url}: \n ${err}`);
@@ -79,12 +88,14 @@ async function fetch_properties_per_category(
       $(".list-view.real-estates .clearfix .box-link").each((_, el) => {
         const link = el.attributes.find((attr) => attr.name == "href");
         if (link) {
-          listings.push(link.value.split('?')[0]);
+          listings.push(link.value.split("?")[0]);
         }
       });
 
-      const fetched_properties: (FetchedProperty | null)[] = await Promise.all(listings.map(async (link) => await fetch_property_details(link)));
-      result = result.concat(fetched_properties.filter(fp => fp != null));
+      const fetched_properties: (FetchedProperty | null)[] = await Promise.all(
+        listings.map(async (link) => await fetch_property_details(link)),
+      );
+      result = result.concat(fetched_properties.filter((fp) => fp != null));
     } catch (err) {
       console.error(`Error at page ${index}: \n ${err}`);
     }
@@ -100,25 +111,32 @@ export async function fetch_properties(): Promise<FetchedProperty[]> {
     ),
   );
   const flat_result: FetchedProperty[] = result.flat();
-  console.log(`Property fetch finished! Total of ${flat_result.length} properties.`);
+  console.log(
+    `Property fetch finished! Total of ${flat_result.length} properties.`,
+  );
 
   for (let index = 0; index < flat_result.length; index++) {
     if (index % 20 == 0) {
-      console.log(`Reverse geocoding: ${index} / ${flat_result.length} completed.`);
+      console.log(
+        `Reverse geocoding: ${index} / ${flat_result.length} completed.`,
+      );
     }
 
     await sleep(1000); // nominatim allows only 1 request per second
-    const reverse_geocoding_response = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
-      params: {
-        lat: flat_result[index].lat,
-        lon: flat_result[index].lon,
-        format: 'json'
+    const reverse_geocoding_response = await axios.get(
+      `https://nominatim.openstreetmap.org/reverse`,
+      {
+        params: {
+          lat: flat_result[index].lat,
+          lon: flat_result[index].lon,
+          format: "json",
+        },
+        headers: {
+          "User-Agent": "PAWS (https://github.com/tkostadinov004/ragis)",
+        },
       },
-      headers: {
-        "User-Agent": "PAWS (https://github.com/tkostadinov004/ragis)"
-      }
-  });
-  
+    );
+
     flat_result[index].address = reverse_geocoding_response.data.display_name;
   }
   console.log("Reversed geocoding finished.");

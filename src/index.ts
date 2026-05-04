@@ -2,7 +2,7 @@ import express from "express";
 import { fetch_osm_tags } from "./services/osm_tag_fetcher";
 import { fetch_from_osm } from "./services/osm_data_fetcher";
 import { fetch_properties } from "./services/properties_for_rent";
-var GeoJSON = require('geojson');
+var GeoJSON = require("geojson");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
@@ -21,7 +21,7 @@ app.get("/objects", async (req, res) => {
 
 app.get("/propertiesForRent", async (_req, res) => {
   const result = await fetch_properties();
-  const geoJson = GeoJSON.parse(result, {Point: ['lat', 'lon']});
+  const geoJson = GeoJSON.parse(result, { Point: ["lat", "lon"] });
   res.send(geoJson);
 });
 
