@@ -8,12 +8,14 @@ const sleep = (ms: number): Promise<void> => {
 };
 
 export class FetchedProperty {
-  lat: number = 0;
-  lon: number = 0;
-  name: string = "";
-  url: string = "";
-  address: string = "";
-  prices: string[] = new Array();
+  lat: number | null = null;
+  lon: number | null = null;
+  name: string | null = null;
+  url: string | null = null;
+  address: string | null = null;
+  rent_eur: string | null = null;
+  rent_bgn: string | null = null;
+  area: number | null = null;
 }
 
 const categories: string[] = [
@@ -35,20 +37,25 @@ async function fetch_property_details(
   try {
     const resp = await axios.get(full_url);
     const $ = cheerio.load(resp.data);
+    let invalid_coords = false;
+    let contains_map = false;
     $("#iframe-maps").each((_, m) => {
+      contains_map = true;
       const embed_url = m.attributes.find((attr) => attr.name == "data-src");
       if (!embed_url) {
+        invalid_coords = true;
         return;
       }
       const coords: string = embed_url.value.split("&")[1].split("=")[1];
       if (coords.match("^0(\.0*)?,0(\.0*)?$")) {
+        invalid_coords = true;
         return;
       }
 
       result.lat = parseFloat(coords.split(",")[0]);
       result.lon = parseFloat(coords.split(",")[1]);
     });
-    if (result.lat == 0 && result.lon == 0) return null;
+    if (invalid_coords || !contains_map) return null;
 
     result.name = $('h2[itemprop="name"]').html() ?? "";
     if (result.name == "") return null;
@@ -56,9 +63,21 @@ async function fetch_property_details(
     $(".big-price strong").each((_, m) => {
       const val: string | null = $(m).html();
       if (val) {
-        result.prices.push(val);
+        if (val.indexOf("€") != -1 || val.indexOf("EUR") != -1) {
+          result.rent_eur = val.split(" ").slice(0, -1).join("");
+        } else if (val.indexOf("BGN") != -1) {
+          result.rent_bgn = val.split(" ").slice(0, -1).join("");
+        } else {
+          result.rent_bgn = result.rent_eur = val;
+        }
       }
     });
+
+    const area: string | null = $(
+      '.info-sidebar-box tr:has(td:first-child:contains("Квадратура")) td:last-child',
+    ).html();
+    if (!area) return null;
+    result.area = Number.parseInt(area);
 
     return result;
   } catch (err) {

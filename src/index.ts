@@ -2,6 +2,7 @@ import express from "express";
 import { fetch_osm_tags } from "./services/osm_tag_fetcher";
 import { fetch_from_osm } from "./services/osm_data_fetcher";
 import { fetch_properties } from "./services/properties_for_rent";
+import { FeatureCollection, GeometryObject } from "geojson";
 var GeoJSON = require("geojson");
 require("dotenv").config();
 const app = express();
@@ -15,7 +16,8 @@ app.get("/objects", async (req, res) => {
   }
 
   const osm_tags: string[] = await fetch_osm_tags(query_string.toString());
-  const osm_data: string = await fetch_from_osm(osm_tags);
+  const osm_data: FeatureCollection<GeometryObject> =
+    await fetch_from_osm(osm_tags);
   res.send(osm_data);
 });
 

@@ -1,8 +1,12 @@
 "use strict";
 
 import axios from "axios";
+import { FeatureCollection, GeometryObject } from "geojson";
+import osmtogeojson from "osmtogeojson";
 
-export async function fetch_from_osm(osm_tags: string[]): Promise<string> {
+export async function fetch_from_osm(
+  osm_tags: string[],
+): Promise<FeatureCollection<GeometryObject>> {
   const nwr_queries: string[] = osm_tags.map(
     (t) => `nwr[${t}](42.590415, 23.218098, 42.786280, 23.492111);`,
   );
@@ -26,5 +30,5 @@ export async function fetch_from_osm(osm_tags: string[]): Promise<string> {
       },
     },
   );
-  return overpass_response.data;
+  return osmtogeojson(overpass_response.data);
 }
