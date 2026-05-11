@@ -1,8 +1,18 @@
 "use strict";
 
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import { FeatureCollection, GeometryObject } from "geojson";
 import osmtogeojson from "osmtogeojson";
+
+const retry_client = axios.create();
+
+axiosRetry(retry_client, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) =>
+    axiosRetry.isNetworkOrIdempotentRequestError(error),
+});
 
 export async function fetch_from_osm(
   osm_tags: string[],
@@ -13,14 +23,13 @@ export async function fetch_from_osm(
   const overpass_query: string = `
     [out:json][timeout:25];
     (
-      ${nwr_queries.join(" ")}    
+      ${nwr_queries.join(" ")}   
     );
-    out body;
-    >;
-    out skel qt;
+    out ids geom;
   `;
   console.log(overpass_query);
-  const overpass_response = await axios.post(
+
+  const overpass_response = await retry_client.post(
     "https://overpass-api.de/api/interpreter",
     `data=${encodeURIComponent(overpass_query)}`,
     {

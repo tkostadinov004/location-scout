@@ -1,0 +1,697 @@
+:root {
+  /* Increased from 350px to 420px to prevent the POI row from wrapping */
+  --sidebar-width: 420px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f4f9;
+  overflow: hidden;
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+/* Screen Management */
+.screen {
+  display: none;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.screen.active {
+  display: flex;
+}
+
+#dashboard-screen.active {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100vw;
+}
+
+/* Setup & Questionnaire Cards */
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 700px;
+  transition: background 0.3s;
+}
+
+.card h1,
+.card h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.card input[type="text"],
+.card select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background: #0078d7;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #005a9e;
+}
+
+button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+button.secondary {
+  background: #ccc;
+  color: #333;
+}
+
+button.secondary:hover:not(:disabled) {
+  background: #aaa;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.radio-grid {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 8px;
+  margin: 10px 0 20px;
+}
+
+.radio-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.radio-caption {
+  font-size: 0.78rem;
+  color: #555;
+  min-height: 1.2rem;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.radio-grid label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px 0;
+  background: #fafafa;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.radio-grid input[type="radio"] {
+  margin-right: 6px;
+}
+
+.radio-grid input[type="radio"]:checked {
+  accent-color: #0078d7;
+}
+
+.field-error {
+  display: block;
+  color: #c00;
+  font-size: 0.9rem;
+  min-height: 1.2em;
+  margin-top: 6px;
+}
+
+/* Dashboard Layout */
+#sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: white;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  overflow-y: auto;
+
+  position: relative;
+  z-index: 1600;
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  margin-left: 0;
+  transition:
+    margin-left 0.3s ease-in-out,
+    background 0.3s,
+    color 0.3s;
+}
+
+#sidebar.collapsed {
+  margin-left: calc((var(--sidebar-width) + 6px) * -1);
+}
+
+/* Resizer Bar Styles */
+#sidebar-resizer {
+  width: 6px;
+  background: #e0e0e0;
+  cursor: ew-resize;
+  z-index: 1500;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #bbb;
+  flex-shrink: 0;
+  transition:
+    background 0.2s,
+    margin-left 0.3s ease-in-out;
+}
+
+#sidebar-resizer:hover,
+#sidebar-resizer.active {
+  background: #0078d7;
+  border-color: #005a9e;
+}
+
+/* Map Wrapper and Elements */
+#map-wrapper {
+  flex-grow: 1;
+  position: relative;
+  display: flex;
+}
+
+#map {
+  flex-grow: 1;
+  height: 100%;
+  z-index: 1;
+}
+
+#btn-toggle-sidebar {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 1000;
+  background: white;
+  color: #333;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 6px 15px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  transition: background 0.2s;
+}
+
+#btn-theme-toggle {
+  position: absolute;
+  top: 15px;
+  left: 75px;
+  z-index: 1000;
+  background: white;
+  color: #333;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 6px 15px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  transition: background 0.2s;
+}
+
+#btn-toggle-sidebar:hover,
+#btn-theme-toggle:hover {
+  background: #eee;
+}
+
+/* Sidebar Panels */
+.panel {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+  transition: background 0.3s;
+}
+
+.panel h3 {
+  margin-top: 0;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.custom-criteria {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.custom-criteria input {
+  flex-grow: 1;
+  padding: 5px;
+}
+
+/* --- CSS Tooltip Logic --- */
+.info-icon {
+  display: inline-block;
+  color: #0078d7;
+  cursor: help;
+  margin-left: 6px;
+  font-size: 1.1em;
+}
+
+.info-icon:hover {
+  color: #005a9e;
+}
+
+.info-icon::after {
+  content: attr(data-tooltip);
+  position: fixed;
+  z-index: 9999;
+
+  margin-left: 15px;
+  margin-top: -10px;
+
+  background: #222;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: "Segoe UI", Tahoma, Geneva, sans-serif;
+  font-weight: normal;
+  white-space: normal;
+  width: max-content;
+  max-width: 220px;
+  text-align: left;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  line-height: 1.4;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.info-icon:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.add-poi-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.add-poi-buttons .radio-option::after {
+  content: attr(data-tooltip);
+  position: fixed;
+  z-index: 9999;
+
+  margin-left: 15px;
+  margin-top: -10px;
+
+  background: #222;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: "Segoe UI", Tahoma, Geneva, sans-serif;
+  font-weight: normal;
+  white-space: normal;
+  width: max-content;
+  max-width: 220px;
+  text-align: left;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  line-height: 1.4;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.add-poi-buttons .radio-option:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Rankings */
+.ranking-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ranking-list li {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ranking-list li:hover {
+  background: #eef;
+}
+
+.ranking-list li span.score {
+  font-weight: bold;
+  color: #333;
+}
+
+/* Custom Buttons inside Table / Map Tooltips */
+.focus-table-btn {
+    background: #4caf50;
+    font-size: 13px;
+    padding: 6px 10px;
+}
+.focus-table-btn:hover {
+    background: #388e3c;
+}
+.tooltip-btn {
+    margin-top: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    background: #0078d7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+.tooltip-btn:hover { background: #005a9e; }
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  height: 80%;
+  overflow-y: auto;
+  transition: background 0.3s;
+}
+
+.property-modal-content {
+    max-width: 450px;
+    height: auto;
+    margin-top: 15vh;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: black;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+table,
+th,
+td {
+  border: 1px solid #ddd;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #f4f4f4;
+  position: sticky;
+  top: 0;
+}
+
+/* =========================================
+   MAP LEGEND STYLES
+   ========================================= */
+.legend {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 6px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    font-size: 13px;
+    color: #333;
+    line-height: 1.6;
+    min-width: 180px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.legend h4 { margin: 0 0 10px 0; font-size: 14px; text-align: center;}
+.legend-item { display: flex; align-items: center; margin-bottom: 6px; }
+.legend-item img { margin-right: 10px; }
+
+.legend-circle {
+    width: 14px; height: 14px; border-radius: 50%; display: inline-block; margin-right: 10px;
+}
+.legend-circle.competitor { background: #c49320; border: 1px solid #a87e1d; }
+.legend-circle.custom-poi { background: #780f65; border: 1px solid #c91ba9; }
+
+.legend-isochrone {
+    width: 16px; height: 16px; background: rgba(0, 120, 215, 0.1); border: 2px solid #0078d7; display: inline-block; margin-right: 8px;
+}
+
+.gradient-container { flex-direction: column; align-items: stretch; margin-bottom: 12px; }
+.gradient-bar {
+    height: 12px;
+    background: linear-gradient(to right, hsl(0, 100%, 45%), hsl(50, 100%, 45%), hsl(100, 100%, 45%));
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+.gradient-labels { display: flex; justify-content: space-between; font-size: 11px; color: #666; font-weight: bold;}
+
+
+/* =========================================
+   DARK MODE OVERRIDES
+   ========================================= */
+body.dark-mode {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+body.dark-mode .card {
+  background: #1e1e1e;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .card h1,
+body.dark-mode .card h2 {
+  color: #e0e0e0;
+}
+
+body.dark-mode .card input[type="text"],
+body.dark-mode .card select {
+  background: #333;
+  color: #e0e0e0;
+  border: 1px solid #555;
+}
+
+body.dark-mode #sidebar {
+  background: #1e1e1e;
+  box-shadow: 2px 0 5px rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .panel {
+  background: #2a2a2a;
+  border: 1px solid #444;
+}
+
+body.dark-mode .panel h3 {
+  border-bottom: 1px solid #555;
+}
+
+body.dark-mode .custom-criteria input {
+  background: #333;
+  color: #e0e0e0;
+  border: 1px solid #555;
+}
+
+body.dark-mode .ranking-list li {
+  border-bottom: 1px solid #444;
+}
+
+body.dark-mode .ranking-list li:hover {
+  background: #3a3a3a;
+}
+
+body.dark-mode .ranking-list li span.score {
+  color: #81c784;
+}
+
+body.dark-mode #btn-toggle-sidebar,
+body.dark-mode #btn-theme-toggle {
+  background: #333;
+  color: #e0e0e0;
+  border: 2px solid #555;
+}
+
+body.dark-mode #btn-toggle-sidebar:hover,
+body.dark-mode #btn-theme-toggle:hover {
+  background: #555;
+}
+
+body.dark-mode .modal-content {
+  background: #1e1e1e;
+}
+
+body.dark-mode table,
+body.dark-mode th,
+body.dark-mode td {
+  border: 1px solid #555;
+}
+
+body.dark-mode th {
+  background-color: #333;
+}
+
+body.dark-mode .info-icon {
+  color: #64b5f6;
+}
+
+body.dark-mode .info-icon:hover {
+  color: #90caf9;
+}
+
+body.dark-mode .info-icon::after {
+  background: #e0e0e0;
+  color: #121212;
+}
+
+/* Dark Mode Legend */
+body.dark-mode .legend {
+    background: #1e1e1e;
+    color: #e0e0e0;
+    box-shadow: 0 1px 5px rgba(255,255,255,0.05);
+}
+body.dark-mode .gradient-labels {
+    color: #aaa;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #0078d7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+body.dark-mode .loading-spinner {
+  border: 5px solid #333;
+  border-top: 5px solid #64b5f6;
+}
+
+/* Resizer Dark Mode Overrides */
+body.dark-mode #sidebar-resizer {
+  background: #333;
+  border-left-color: #222;
+  border-right-color: #111;
+}
+
+body.dark-mode #sidebar-resizer:hover,
+body.dark-mode #sidebar-resizer.active {
+  background: #64b5f6;
+  border-color: #42a5f5;
+}
+
+/* Leaflet Dark Mode Popup/Tooltip Overrides */
+body.dark-mode .leaflet-popup-content-wrapper,
+body.dark-mode .leaflet-popup-tip {
+  background: #2a2a2a;
+  color: #e0e0e0;
+}
+
+body.dark-mode .leaflet-popup-content a {
+  color: #64b5f6;
+}
+
+/* Changed popup pointer events for interactive tooltips */
+body.dark-mode .leaflet-tooltip {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #555;
+  pointer-events: auto;
+}
+
+body.dark-mode .leaflet-tooltip::before {
+  border-top-color: #2a2a2a;
+}

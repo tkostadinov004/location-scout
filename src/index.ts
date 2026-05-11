@@ -3,13 +3,18 @@ import { fetch_osm_tags } from "./services/osm_tag_fetcher";
 import { fetch_from_osm } from "./services/osm_data_fetcher";
 import { fetch_properties } from "./services/properties_for_rent";
 import { FeatureCollection, GeometryObject } from "geojson";
+import path from "path";
 var GeoJSON = require("geojson");
 require("dotenv").config();
-const app = express();
-app.use(express.json());
 const port = "3000";
+const public_dir = "public";
 
-app.get("/objects", async (req, res) => {
+const app = express();
+app.use(express.json({ limit: "50mb" }));
+app.use(express.static("public"));
+app.use("/api", require("./api"));
+
+app.get("/fetch/objects", async (req, res) => {
   const query_string = req.body.query_string;
   if (!query_string) {
     throw new Error("Query string is not present!");
@@ -21,10 +26,23 @@ app.get("/objects", async (req, res) => {
   res.send(osm_data);
 });
 
-app.get("/propertiesForRent", async (_req, res) => {
+app.get("/fetch/propertiesForRent", async (_req, res) => {
   const result = await fetch_properties();
   const geoJson = GeoJSON.parse(result, { Point: ["lat", "lon"] });
   res.send(geoJson);
+});
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(public_dir, "index.html"));
+});
+
+app.get("/image", (req, res) => {
+  const name = req.query.image_name;
+  if (!name) {
+    res.status(400).send(`Image name not provided!`);
+    return;
+  }
+  res.sendFile(name.toString(), { root: public_dir });
 });
 
 app.listen(port, () => {

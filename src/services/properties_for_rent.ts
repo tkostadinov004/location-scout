@@ -3,7 +3,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 
-const sleep = (ms: number): Promise<void> => {
+export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
