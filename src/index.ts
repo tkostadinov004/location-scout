@@ -1,7 +1,7 @@
 import express from "express";
-import { fetch_osm_tags } from "./services/osm_tag_fetcher";
-import { fetch_from_osm } from "./services/osm_data_fetcher";
-import { fetch_properties } from "./services/properties_for_rent";
+import { fetch_osm_tags } from "./utils/osm_tag_fetcher";
+import { fetch_from_osm } from "./utils/osm_data_fetcher";
+import { fetch_properties } from "./utils/properties_for_rent";
 import { FeatureCollection, GeometryObject } from "geojson";
 import path from "path";
 var GeoJSON = require("geojson");

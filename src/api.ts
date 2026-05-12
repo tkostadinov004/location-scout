@@ -1,56 +1,44 @@
 import express from "express";
 import {
   get_common_data,
+  get_osm_data,
   get_rentable_objects,
-  insert_data_to_db,
   remove_temp_table,
   RentableObject,
 } from "./db/postgres-fetch";
-import { FeatureCollection, GeometryObject } from "geojson";
-import { fetch_osm_tags } from "./services/osm_tag_fetcher";
-import { fetch_from_osm } from "./services/osm_data_fetcher";
 import {
   AdditionalCriterion,
   AdditionalPOI,
   calculate_scores,
 } from "./services/score_calculator";
+import { osm_data_fetch } from "./services/db_osm_cache";
 const router = express.Router();
+
+router.post("/objects_of_type", async (req, res) => {
+  try {
+    const type: string = req.body.object_type;
+    const result = await get_osm_data(type);
+    res.json({ objects_of_type: JSON.parse(result ?? "{}") });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(`Error fetching data from database. \n\n ${err}`);
+  }
+});
 
 router.post("/scores", async (req, res) => {
   try {
+    const objects_of_same_type_table: string = await osm_data_fetch(
+      req.body.object_type,
+    );
+
+    let additional_pois_table: string | null = null;
     const additional_poi_config: AdditionalPOI | null = req.body.custom_poi;
-    console.log(additional_poi_config);
-    let objects_of_same_type: FeatureCollection<GeometryObject>;
-    if (req.body.fetched_objects_of_same_type) {
-      objects_of_same_type = req.body.fetched_objects_of_same_type;
-    } else {
-      const object_type: string = req.body.object_type;
-      objects_of_same_type = await fetch_from_osm(
-        await fetch_osm_tags(object_type),
-      );
+    if (additional_poi_config) {
+      additional_pois_table = await osm_data_fetch(additional_poi_config.value);
     }
-    const objects_of_same_type_table = crypto.randomUUID();
-    await insert_data_to_db(objects_of_same_type, objects_of_same_type_table);
 
     const additional_criteria: AdditionalCriterion[] | null =
       req.body.additional_criteria;
-    let additional_pois_table: string | null = null;
-
-    let additional_pois: FeatureCollection<GeometryObject> | null = null;
-    if (additional_poi_config) {
-      if (req.body.additional_pois) {
-        additional_pois = req.body.additional_pois;
-      } else {
-        additional_pois = await fetch_from_osm(
-          await fetch_osm_tags(additional_poi_config.value),
-        );
-      }
-      additional_pois_table = crypto.randomUUID();
-      if (additional_pois) {
-        await insert_data_to_db(additional_pois, additional_pois_table);
-      }
-    }
-
     const rentables: RentableObject[] = await get_rentable_objects(
       objects_of_same_type_table,
       additional_pois_table,
@@ -63,7 +51,7 @@ router.post("/scores", async (req, res) => {
     }
 
     let ratings: number[] = req.body.ratings;
-    if (!ratings || ratings.find((r) => r == null)) {
+    if (!ratings || ratings.some((r) => r == null)) {
       ratings = [1.667, 2.5, 1.5];
     }
     calculate_scores(
@@ -74,11 +62,7 @@ router.post("/scores", async (req, res) => {
       additional_poi_config != null,
     );
 
-    res.json({
-      rentables,
-      objects_of_same_type,
-      additional_pois,
-    });
+    res.json({ rentables });
   } catch (err) {
     console.error(err);
     res.status(500).send(`Error fetching data from database. \n\n ${err}`);

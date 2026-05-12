@@ -12,7 +12,7 @@ export async function fetch_osm_tags(
         {
           role: "system",
           content:
-            "You seem to know how to map natural language to OpenStreetMap (OSM) tags. The user will ask you to give relevant OSM tags to their query. Search for, and return ONLY existing, real OSM tags and don't invent new ones! Give as many relevant tags as you can think of. You have to ONLY return the relevant tags as a comma-separated string with no spaces, containing each tag. Give the most relevant at most 5 tags. Never write anything else besides the string of tags!!!",
+            "You seem to know how to map natural language to OpenStreetMap (OSM) tags. The user will ask you to give relevant OSM tags to their query. Search for, and return ONLY existing, real OSM tags and don't invent new ones! You have to ONLY return the relevant tags as a comma-separated string with no spaces, containing each tag. Give the most relevant at most 5 tags. Never write anything else besides the string of tags!!!",
         },
         {
           role: "user",

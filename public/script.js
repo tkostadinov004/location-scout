@@ -173,8 +173,8 @@ async function initializeDashboard() {
     // Map Legend Control
     const legend = L.control({ position: "bottomleft" });
     legend.onAdd = function (map) {
-        const div = L.DomUtil.create("div", "info legend");
-        div.innerHTML = `
+      const div = L.DomUtil.create("div", "info legend");
+      div.innerHTML = `
             <h4>Map Legend</h4>
             <div class="legend-item gradient-container">
                 <div class="gradient-bar"></div>
@@ -187,7 +187,7 @@ async function initializeDashboard() {
             <div class="legend-item"><img src="image?image_name=school.png" width="16" height="16"> School</div>
             <div class="legend-item"><img src="image?image_name=public_transport.png" width="16" height="16"> Transit Stop</div>
         `;
-        return div;
+      return div;
     };
     legend.addTo(map);
   }
@@ -221,34 +221,36 @@ async function initializeDashboard() {
   document
     .getElementById("btn-show-table")
     .addEventListener("click", showModal);
-  
+
   // Close Modals logic
   document.getElementById("close-modal").addEventListener("click", hideModal);
-  
-  document.getElementById("close-property-modal").addEventListener("click", () => {
+
+  document
+    .getElementById("close-property-modal")
+    .addEventListener("click", () => {
       document.getElementById("property-modal").style.display = "none";
-  });
+    });
 
   // Close modals when clicking outside
   window.addEventListener("click", (e) => {
-      if (e.target == document.getElementById("table-modal")) hideModal();
-      if (e.target == document.getElementById("property-modal")) {
-          document.getElementById("property-modal").style.display = "none";
-      }
+    if (e.target == document.getElementById("table-modal")) hideModal();
+    if (e.target == document.getElementById("property-modal")) {
+      document.getElementById("property-modal").style.display = "none";
+    }
   });
 
   // Table Pagination Events
-  document.getElementById('btn-prev-page').addEventListener('click', () => {
-      if (currentPage > 1) {
-          currentPage--;
-          renderTablePage();
-      }
+  document.getElementById("btn-prev-page").addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTablePage();
+    }
   });
-  document.getElementById('btn-next-page').addEventListener('click', () => {
-      if ((currentPage * rowsPerPage) < tableFeatures.length) {
-          currentPage++;
-          renderTablePage();
-      }
+  document.getElementById("btn-next-page").addEventListener("click", () => {
+    if (currentPage * rowsPerPage < tableFeatures.length) {
+      currentPage++;
+      renderTablePage();
+    }
   });
 
   // Sidebar Toggle
@@ -325,18 +327,20 @@ document.addEventListener("mouseup", () => {
 });
 
 // --- Globally accessible wrapper to trigger modal from tooltips ---
-window.triggerPropertyModal = function(featureId) {
-    const targetFeature = currentMapFeatures.find(f => f.properties.id === featureId);
-    if (targetFeature) {
-        openPropertyModal(targetFeature);
-    }
-}
+window.triggerPropertyModal = function (featureId) {
+  const targetFeature = currentMapFeatures.find(
+    (f) => f.properties.id === featureId,
+  );
+  if (targetFeature) {
+    openPropertyModal(targetFeature);
+  }
+};
 
 // --- Map Rendering Logic ---
 function renderMapFeatures(geoJSON) {
   rentablePropertiesLayer.clearLayers();
   markerDictionary = {};
-  
+
   // Store features globally so tooltips can access them
   currentMapFeatures = geoJSON.features;
 
@@ -363,23 +367,27 @@ function renderMapFeatures(geoJSON) {
           <button onclick="window.triggerPropertyModal(${feature.properties.id})" class="tooltip-btn">View Details</button>
       </div>
       `;
-      
+
       // 1. Hover Tooltip
-      marker.bindTooltip(tooltipHtml, { direction: 'top', interactive: true });
+      marker.bindTooltip(tooltipHtml, { direction: "top", interactive: true });
 
       // 2. Sticky Popup (Looks identical to tooltip, stays until user clicks outside)
-      marker.bindPopup(tooltipHtml, { closeButton: false, autoPan: false, offset: [0, -10] });
+      marker.bindPopup(tooltipHtml, {
+        closeButton: false,
+        autoPan: false,
+        offset: [0, -10],
+      });
 
       marker.on("click", async () => {
         // Center the map on the clicked property
         map.setView(latlng, 15);
-        
+
         marker.bringToFront();
-        
+
         // Hide the hover tooltip so it doesn't overlap the sticky popup
-        marker.closeTooltip(); 
-        marker.openPopup();    
-        
+        marker.closeTooltip();
+        marker.openPopup();
+
         await handleMarkerClick(feature, latlng);
       });
 
@@ -394,18 +402,22 @@ function renderMapFeatures(geoJSON) {
 
 // Function to populate the centered HTML Modal
 function openPropertyModal(feature) {
-    const props = feature.properties;
-    document.getElementById("prop-name").innerText = props.name;
-    document.getElementById("prop-address").innerText = props.address || "Data unavailable";
-    
-    document.getElementById("prop-rent").innerText = `${props.rent_eur} ${!isNaN(props.rent_eur) ? "EUR" : ""} / ${props.rent_bgn} ${!isNaN(props.rent_bgn) ? "BGN" : ""}`;
-    document.getElementById("prop-area").innerText = props.area;
-    document.getElementById("prop-base-score").innerText = props.base_score.toFixed(2);
-    document.getElementById("prop-total-score").innerText = props.total_score.toFixed(2);
-    
-    document.getElementById("prop-link").href = props.url;
-    
-    document.getElementById("property-modal").style.display = "block";
+  const props = feature.properties;
+  document.getElementById("prop-name").innerText = props.name;
+  document.getElementById("prop-address").innerText =
+    props.address || "Data unavailable";
+
+  document.getElementById("prop-rent").innerText =
+    `${props.rent_eur} ${!isNaN(props.rent_eur) ? "EUR" : ""} / ${props.rent_bgn} ${!isNaN(props.rent_bgn) ? "BGN" : ""}`;
+  document.getElementById("prop-area").innerText = props.area;
+  document.getElementById("prop-base-score").innerText =
+    props.base_score.toFixed(2);
+  document.getElementById("prop-total-score").innerText =
+    props.total_score.toFixed(2);
+
+  document.getElementById("prop-link").href = props.url;
+
+  document.getElementById("property-modal").style.display = "block";
 }
 
 function display_additional_pois(feature, data, text, type) {
@@ -446,11 +458,16 @@ async function handleMarkerClick(feature, latlng) {
     style: { color: "#0078d7", weight: 2, fillOpacity: 0.1 },
   }).addTo(isochroneLayer);
 
-  if (feature.properties.objects_of_same_type_in_isochrone) {
-    const competitorsData = JSON.parse(
-      feature.properties.objects_of_same_type_in_isochrone,
-    );
-    L.geoJSON(competitorsData, {
+  if (fetched_objects_of_same_type) {
+    const points = fetched_objects_of_same_type.features.map((feat) => {
+      return {
+        type: "Feature",
+        properties: feat.properties,
+        geometry: feat.properties.wkb_geometry_centroid, // Set the main geometry to the centroid
+      };
+    });
+    console.log(points);
+    L.geoJSON(points, {
       pointToLayer: (feat, ll) => {
         const marker = L.circleMarker(ll, {
           radius: 6,
@@ -468,9 +485,16 @@ async function handleMarkerClick(feature, latlng) {
     }).addTo(competitorsLayer);
   }
 
-  if (feature.properties.additional_pois) {
-    const additional_pois = JSON.parse(feature.properties.additional_pois);
-    L.geoJSON(additional_pois, {
+  if (additional_pois) {
+    const points = additional_pois.features.map((feat) => {
+      return {
+        type: "Feature",
+        properties: feat.properties,
+        geometry: feat.properties.wkb_geometry_centroid, // Set the main geometry to the centroid
+      };
+    });
+    console.log(points);
+    L.geoJSON(points, {
       pointToLayer: (feat, ll) => {
         const marker = L.circleMarker(ll, {
           radius: 6,
@@ -553,7 +577,7 @@ function populateTable(features) {
 function renderTablePage() {
   const tbody = document.querySelector("#data-table tbody");
   tbody.innerHTML = "";
-  
+
   const start = (currentPage - 1) * rowsPerPage;
   const end = start + rowsPerPage;
   const paginatedItems = tableFeatures.slice(start, end);
@@ -574,28 +598,30 @@ function renderTablePage() {
 
   // Update Page Indicator
   const totalPages = Math.ceil(tableFeatures.length / rowsPerPage) || 1;
-  document.getElementById('page-indicator').innerText = `Page ${currentPage} of ${totalPages}`;
-  
+  document.getElementById("page-indicator").innerText =
+    `Page ${currentPage} of ${totalPages}`;
+
   // Disable logic for prev/next buttons
-  document.getElementById('btn-prev-page').disabled = currentPage === 1;
-  document.getElementById('btn-next-page').disabled = end >= tableFeatures.length;
+  document.getElementById("btn-prev-page").disabled = currentPage === 1;
+  document.getElementById("btn-next-page").disabled =
+    end >= tableFeatures.length;
 
   // Add event listeners for the new "Focus" buttons
-  document.querySelectorAll('.focus-table-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-          const targetId = parseInt(e.target.getAttribute('data-id'));
-          focusOnPropertyFromTable(targetId);
-      });
+  document.querySelectorAll(".focus-table-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const targetId = parseInt(e.target.getAttribute("data-id"));
+      focusOnPropertyFromTable(targetId);
+    });
   });
 }
 
 function focusOnPropertyFromTable(id) {
-    hideModal(); // Closes the data table
-    const marker = markerDictionary[id];
-    if (marker) {
-        map.setView(marker.getLatLng(), 15);
-        marker.fire('click'); // Simulates map click to fetch isochrones
-    }
+  hideModal(); // Closes the data table
+  const marker = markerDictionary[id];
+  if (marker) {
+    map.setView(marker.getLatLng(), 15);
+    marker.fire("click"); // Simulates map click to fetch isochrones
+  }
 }
 
 function showModal() {
@@ -618,7 +644,6 @@ async function triggerRecalculation() {
   renderMapFeatures(rentableGeoJSON);
 }
 
-// --- MOCK API BACKEND LOGIC ---
 async function apiFetchRentableObjects() {
   showLoading();
   const body = JSON.stringify({
@@ -632,14 +657,11 @@ async function apiFetchRentableObjects() {
         value: true,
       };
     }),
-    fetched_objects_of_same_type: fetched_objects_of_same_type,
-    additional_pois: additional_pois,
     custom_poi:
       activeCustomPoi != ""
         ? { value: activeCustomPoi, fast: activeCustomPoiFetchMode }
         : null,
   });
-  console.log(body);
 
   let response;
   try {
@@ -661,10 +683,31 @@ async function apiFetchRentableObjects() {
     return;
   }
 
-  const response_body = await response.json();
-  fetched_objects_of_same_type = response_body.objects_of_same_type;
-  additional_pois = response_body.additional_pois;
+  const objects_of_same_type_res = await fetch("/api/objects_of_type", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ object_type: currentBusinessType }),
+  });
+  const objects_of_same_type_json = await objects_of_same_type_res.json();
+  fetched_objects_of_same_type = objects_of_same_type_json.objects_of_type;
 
+  if (activeCustomPoi != "") {
+    const additional_pois_res = await fetch("/api/objects_of_type", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ object_type: activeCustomPoi }),
+    });
+    const additional_pois_res_json = await additional_pois_res.json();
+    additional_pois = additional_pois_res_json.objects_of_type;
+  }
+
+  const response_body = await response.json();
   let id = 0;
   hideLoading();
   return {
@@ -683,12 +726,10 @@ async function apiFetchRentableObjects() {
         base_score: r.base_score,
         total_score: r.total_score,
         isochrone: r.isochrone,
-        objects_of_same_type_in_isochrone: r.objects_of_same_type_in_isochrone,
         parks_in_isochrone: r.parks_in_isochrone,
         schools_in_isochrone: r.schools_in_isochrone,
         public_transport_stops_in_isochrone:
           r.public_transport_stops_in_isochrone,
-        additional_pois: r.additional_pois,
       },
     })),
   };

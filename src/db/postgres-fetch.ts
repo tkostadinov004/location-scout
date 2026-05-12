@@ -8,6 +8,64 @@ import format from "pg-format";
 import { table } from "console";
 import { AdditionalCriterion } from "../services/score_calculator";
 
+export class ScoreCalculationCommonData {
+  total_sofia_population: number;
+  max_rent: number;
+  min_rent: number;
+
+  constructor(tsp: number, max_rent: number, min_rent: number) {
+    this.total_sofia_population = tsp;
+    this.max_rent = max_rent;
+    this.min_rent = min_rent;
+  }
+}
+
+export class RentableObject {
+  point: string = "";
+  isochrone: string = "";
+  isochrone_area: number = 0;
+  name: string = "";
+  url: string = "";
+  address: string = "";
+  rent_eur: string | number = 0;
+  rent_bgn: string | number = 0;
+  area: number = 0;
+  approximate_customer_count: number = 0;
+  rent_per_m2_eur: number | null = null;
+  rent_per_m2_bgn: number | null = null;
+  shortest_dist_to_park: number | null = null;
+  shortest_dist_to_public_transport: number | null = null;
+  shortest_dist_to_school: number | null = null;
+
+  objects_of_same_type_in_isochrone: string = "";
+  objects_of_same_type_in_isochrone_count: number = 0;
+  base_score: number | null = null;
+  total_score: number | null = null;
+
+  parks_in_isochrone: string | null = null;
+  public_transport_stops_in_isochrone: string | null = null;
+  schools_in_isochrone: string | null = null;
+
+  additional_pois: string | null = null;
+  min_distance_to_additional_poi: number | null = null;
+
+  constructor(init?: Partial<RentableObject>) {
+    if (init) {
+      Object.assign(this, init);
+    }
+  }
+}
+
+export async function get_common_data(): Promise<ScoreCalculationCommonData> {
+  const min_max_rents: number[] = await get_min_max_rents();
+  const sofia_population: number = await get_sofia_population();
+  return new ScoreCalculationCommonData(
+    sofia_population,
+    min_max_rents[0],
+    min_max_rents[1],
+  );
+}
+
 const get_pg_pool = function () {
   return new Pool({
     user: process.env.PG_USER,
@@ -57,54 +115,13 @@ async function get_min_max_rents(): Promise<number[]> {
   }
 }
 
-/*
-
-{
-      type: "FeatureCollection",
-      features: res.rows.map((row) => ({
-        type: "Feature",
-        geometry: JSON.parse(row.point),
-        properties: {
-          isochrone: row.isochrone ? JSON.parse(row.isochrone) : "Unknown",
-          name: row.name || "Unknown",
-          url: row.url || "Unknown",
-          rent_eur: row.rent_eur || "Unknown",
-          rent_bgn: row.rent_bgn || "Unknown",
-          area: row.area || "Unknown",
-        },
-      })),
-    }
-*/
-
-async function normalize_geometries(table_name: string) {
-  const pool: Pool = get_pg_pool();
-  let conn;
-  try {
-    conn = await pool.connect();
-    await conn.query(
-      format(
-        `
-        update %I
-        set wkb_geometry = st_centroid(wkb_geometry)
-        where st_geometrytype(wkb_geometry) <> 'ST_Point';
-        `,
-        table_name,
-      ),
-    );
-  } finally {
-    if (conn) {
-      conn.release();
-    }
-  }
-}
-
-export async function insert_data_to_db(
-  objects: FeatureCollection<GeometryObject>,
+export async function insert_data_json_to_db(
+  objects_json: string,
   table_name: string,
 ) {
   await new Promise<void>((resolve, reject) => {
     const tmpFile = tmp.fileSync({ postfix: ".geojson" });
-    fs.writeFileSync(tmpFile.name, JSON.stringify(objects));
+    fs.writeFileSync(tmpFile.name, objects_json);
     const args = [
       `-f`,
       `PostgreSQL`,
@@ -135,8 +152,37 @@ export async function insert_data_to_db(
     });
   });
 
-  const real_table_name = table_name.replaceAll("-", "_");
-  await normalize_geometries(real_table_name);
+  await insert_centroids(table_name);
+}
+
+export async function insert_centroids(table_name: string) {
+  const pool: Pool = get_pg_pool();
+  let conn;
+  try {
+    conn = await pool.connect();
+    const query_string = format(
+      `
+        alter table %I
+        drop column if exists wkb_geometry_centroid,
+        add column wkb_geometry_centroid geometry;
+        update %I set wkb_geometry_centroid = st_centroid(wkb_geometry);
+        `,
+      table_name.replaceAll("-", "_"),
+      table_name.replaceAll("-", "_"),
+    );
+    await conn.query(query_string);
+  } finally {
+    if (conn) {
+      conn.release();
+    }
+  }
+}
+
+export async function insert_data_to_db(
+  objects: FeatureCollection<GeometryObject>,
+  table_name: string,
+) {
+  await insert_data_json_to_db(JSON.stringify(objects), table_name);
 }
 
 export async function remove_temp_table(table_name: string) {
@@ -154,62 +200,77 @@ export async function remove_temp_table(table_name: string) {
   }
 }
 
-export class RentableObject {
-  point: string = "";
-  isochrone: string = "";
-  isochrone_area: number = 0;
-  name: string = "";
-  url: string = "";
-  address: string = "";
-  rent_eur: string | number = 0;
-  rent_bgn: string | number = 0;
-  area: number = 0;
-  approximate_customer_count: number = 0;
-  rent_per_m2_eur: number | null = null;
-  rent_per_m2_bgn: number | null = null;
-  shortest_dist_to_park: number | null = null;
-  shortest_dist_to_public_transport: number | null = null;
-  shortest_dist_to_school: number | null = null;
-
-  objects_of_same_type_in_isochrone: string = "";
-  objects_of_same_type_in_isochrone_count: number = 0;
-  base_score: number | null = null;
-  total_score: number | null = null;
-
-  parks_in_isochrone: string | null = null;
-  public_transport_stops_in_isochrone: string | null = null;
-  schools_in_isochrone: string | null = null;
-
-  additional_pois: string | null = null;
-  min_distance_to_additional_poi: number | null = null;
-
-  constructor(init?: Partial<RentableObject>) {
-    if (init) {
-      Object.assign(this, init);
+export async function get_osm_data(query: string): Promise<string | null> {
+  const pool: Pool = get_pg_pool();
+  let conn;
+  try {
+    conn = await pool.connect();
+    const res = await conn.query(
+      format(
+        `
+        select result
+        from teodorsk_work.osm_queries
+        where lower(query) = lower(%L);
+        `,
+        query,
+      ),
+    );
+    const res_str: string[] = res.rows.map((r) => r.result);
+    return res_str.length == 0 ? null : res_str[0];
+  } finally {
+    if (conn) {
+      conn.release();
     }
   }
 }
 
-export class ScoreCalculationCommonData {
-  total_sofia_population: number;
-  max_rent: number;
-  min_rent: number;
-
-  constructor(tsp: number, max_rent: number, min_rent: number) {
-    this.total_sofia_population = tsp;
-    this.max_rent = max_rent;
-    this.min_rent = min_rent;
+export async function insert_osm_query_record(
+  query: string,
+  data_table_name: string,
+) {
+  const pool: Pool = get_pg_pool();
+  let conn;
+  try {
+    conn = await pool.connect();
+    await conn.query(
+      format(
+        `
+        insert into teodorsk_work.osm_queries (query, result) values (%L, table_to_geojson(%L));
+        `,
+        query,
+        data_table_name.replaceAll("-", "_"),
+      ),
+    );
+  } finally {
+    if (conn) {
+      conn.release();
+    }
   }
 }
 
-export async function get_common_data(): Promise<ScoreCalculationCommonData> {
-  const min_max_rents: number[] = await get_min_max_rents();
-  const sofia_population: number = await get_sofia_population();
-  return new ScoreCalculationCommonData(
-    sofia_population,
-    min_max_rents[0],
-    min_max_rents[1],
-  );
+export async function check_if_osm_data_exists(
+  query: string,
+): Promise<boolean> {
+  const pool: Pool = get_pg_pool();
+  let conn;
+  try {
+    conn = await pool.connect();
+    const res = await conn.query(
+      format(
+        `
+        select exists(select id 
+        from teodorsk_work.osm_queries
+        where query = %L);
+        `,
+        query,
+      ),
+    );
+    return res.rows[0].exists;
+  } finally {
+    if (conn) {
+      conn.release();
+    }
+  }
 }
 
 export async function get_rentable_objects(
@@ -228,39 +289,74 @@ export async function get_rentable_objects(
       "_",
     );
   }
-  let query_string = format(
-    `select st_asgeojson(rp.wkb_geometry) as point, st_asgeojson(isochrone) as isochrone, st_area(isochrone::geography) as isochrone_area,
+  let query_string_unformatted = `
+    ${
+      additional_pois_table_name
+        ? `
+      with closest_point_to_additional_pois as 
+      (
+        select res.ogc_fid as rentable_id, res.id as closest_point_id, res.additional_pois from (
+          select ap.ogc_fid, ap.wkb_geometry, row_number() over (partition by ap.ogc_fid order by pnnvp.the_geom <-> ap.wkb_geometry) as rn, pnnvp.id,
+          st_collect(distinct st_centroid(ap.wkb_geometry)) as additional_pois
+          from %I ap
+          join pedestrian_network_noded_vertices_pgr pnnvp on st_within(pnnvp.the_geom, st_buffer(ap.wkb_geometry::geography, 200)::geometry)
+          group by ap.ogc_fid, pnnvp.id
+        ) res
+        where res.rn = 1
+      )
+      `
+        : ""
+    }
+    select st_asgeojson(rp.wkb_geometry) as point, st_asgeojson(isochrone) as isochrone, st_area(isochrone::geography) as isochrone_area,
                 name, url, address, rent_eur, rent_bgn, area,
                 approximate_customer_count, rent_per_m2_eur, rent_per_m2_bgn, shortest_dist_to_park,
                 shortest_dist_to_public_transport, shortest_dist_to_school, 
-                st_asgeojson((select st_collect(s.wkb_geometry) from %I s where st_contains(isochrone, s.wkb_geometry))) as same_objects,
-                (select count(s.ogc_fid) from %I s where st_contains(isochrone, s.wkb_geometry)) as count_same
+                st_asgeojson(st_collect(distinct st_centroid(same_objects_t.wkb_geometry))) as same_objects,
+                count(distinct same_objects_t.wkb_geometry) as count_same
                 ${additional_criteria.find((p) => p.type == "park") ? ", st_asgeojson(get_parks_centroids_in_area(isochrone)) as parks" : ""}
                 ${additional_criteria.find((p) => p.type == "school") ? ", st_asgeojson(get_schools_centroids_in_area(isochrone)) as schools" : ""}
                 ${additional_criteria.find((p) => p.type == "public_transport") ? ", st_asgeojson(get_public_transport_centroids_stops_in_area(isochrone)) as public_transport_stops" : ""}
+                ${additional_pois_table_name ? `, st_asgeojson(cp.additional_pois)` : ""}
                 ${
                   additional_pois_table_name
-                    ? ", st_asgeojson(st_collect(ap.wkb_geometry)) as additional_pois, " +
-                      "(select min(agg_cost) / 1000 from (select * from  pgr_dijkstraCost('SELECT id, source, target, meters as cost FROM pedestrian_network_noded', rp.closest_vertex, array_agg(pnnvp.id) filter (where pnnvp.id is not null), false))) as min_distance_to_additional_poi"
+                    ? additional_pois_fetch_type
+                      ? `, st_distance(rp.wkb_geometry::geography, (select p.wkb_geometry from %I p order by p.wkb_geometry <-> rp.wkb_geometry limit 1)::geography) / 1000 as min_distance_to_additional_poi`
+                      : `, (select agg_cost / 1000 from pgr_dijkstraCost('SELECT id, source, target, meters as cost FROM pedestrian_network_noded', rp.closest_vertex, cp.closest_point_id, false)) as min_distance_to_additional_poi`
                     : ""
                 }
-            from teodorsk_work.rentable_properties rp
-            ${additional_pois_table_name ? "left join %I as ap on st_within(ap.wkb_geometry, isochrone) left join pedestrian_network_noded_vertices_pgr pnnvp on st_within(pnnvp.the_geom, st_buffer(ap.wkb_geometry::geography, 10)::geometry)" : ""}
-            group by rp.wkb_geometry, rp.isochrone,  name, url, address, rent_eur, rent_bgn, area,
-                approximate_customer_count, rent_per_m2_eur, rent_per_m2_bgn, shortest_dist_to_park,
-                shortest_dist_to_public_transport, shortest_dist_to_school, closest_vertex`,
-    objects_of_same_type_table_name,
-    objects_of_same_type_table_name,
-    additional_pois_table_name,
-  );
+            from teodorsk_work.rentable_properties rp ${additional_pois_table_name ? `join closest_point_to_additional_pois cp on cp.rentable_id = rp.ogc_fid` : ""} left join %I as same_objects_t on st_within(same_objects_t.wkb_geometry, isochrone)
+            group by rp.ogc_fid ${additional_pois_table_name ? ", cp.closest_point_id, cp.additional_pois" : ""};
+    `;
+  let query_string_formatted: string = "";
+  if (additional_pois_table_name) {
+    if (additional_pois_fetch_type) {
+      query_string_formatted = format(
+        query_string_unformatted,
+        additional_pois_table_name,
+        additional_pois_table_name,
+        objects_of_same_type_table_name,
+      );
+    } else {
+      query_string_formatted = format(
+        query_string_unformatted,
+        additional_pois_table_name,
+        objects_of_same_type_table_name,
+      );
+    }
+  } else {
+    query_string_formatted = format(
+      query_string_unformatted,
+      objects_of_same_type_table_name,
+    );
+  }
 
-  console.log(query_string);
+  console.log(query_string_formatted);
 
   const pool: Pool = get_pg_pool();
   let conn;
   try {
     conn = await pool.connect();
-    const res = await conn.query(query_string);
+    const res = await conn.query(query_string_formatted);
     return res.rows.map(
       (r) =>
         new RentableObject({
