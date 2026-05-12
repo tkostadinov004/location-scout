@@ -299,7 +299,7 @@ export async function get_rentable_objects(
           select ap.ogc_fid, ap.wkb_geometry, row_number() over (partition by ap.ogc_fid order by pnnvp.the_geom <-> ap.wkb_geometry) as rn, pnnvp.id,
           st_collect(distinct st_centroid(ap.wkb_geometry)) as additional_pois
           from %I ap
-          join pedestrian_network_noded_vertices_pgr pnnvp on st_within(pnnvp.the_geom, st_buffer(ap.wkb_geometry::geography, 200)::geometry)
+          left join pedestrian_network_noded_vertices_pgr pnnvp on st_within(pnnvp.the_geom, st_buffer(ap.wkb_geometry::geography, 200)::geometry)
           group by ap.ogc_fid, pnnvp.id
         ) res
         where res.rn = 1
@@ -324,7 +324,7 @@ export async function get_rentable_objects(
                       : `, (select agg_cost / 1000 from pgr_dijkstraCost('SELECT id, source, target, meters as cost FROM pedestrian_network_noded', rp.closest_vertex, cp.closest_point_id, false)) as min_distance_to_additional_poi`
                     : ""
                 }
-            from teodorsk_work.rentable_properties rp ${additional_pois_table_name ? `join closest_point_to_additional_pois cp on cp.rentable_id = rp.ogc_fid` : ""} left join %I as same_objects_t on st_within(same_objects_t.wkb_geometry, isochrone)
+            from teodorsk_work.rentable_properties rp ${additional_pois_table_name ? `left join closest_point_to_additional_pois cp on cp.rentable_id = rp.ogc_fid` : ""} left join %I as same_objects_t on st_within(same_objects_t.wkb_geometry, isochrone)
             group by rp.ogc_fid ${additional_pois_table_name ? ", cp.closest_point_id, cp.additional_pois" : ""};
     `;
   let query_string_formatted: string = "";
