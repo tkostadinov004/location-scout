@@ -113,7 +113,6 @@ export function calculate_scores(
       }
     });
     if (is_additional_poi_included) {
-      console.log("tr");
       weighted_sum +=
         r.min_distance_to_additional_poi == null
           ? 0
