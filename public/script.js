@@ -152,8 +152,13 @@ async function initializeDashboard() {
 
     const legend = L.control({ position: "bottomleft" });
     legend.onAdd = function (map) {
-      const div = L.DomUtil.create("div", "info legend");
-      div.innerHTML = `
+      const wrapper = L.DomUtil.create("div", "legend-wrapper");
+
+      L.DomEvent.disableScrollPropagation(wrapper);
+      L.DomEvent.disableClickPropagation(wrapper);
+
+      wrapper.innerHTML = `
+        <div class="info legend">
             <h4>Map Legend</h4>
             <div class="legend-item gradient-container">
                 <div class="gradient-bar"></div>
@@ -165,8 +170,43 @@ async function initializeDashboard() {
             <div class="legend-item"><img src="image?image_name=park.png" width="16" height="16"> Park</div>
             <div class="legend-item"><img src="image?image_name=school.png" width="16" height="16"> School</div>
             <div class="legend-item"><img src="image?image_name=public_transport.png" width="16" height="16"> Transit Stop</div>
-        `;
-      return div;
+        </div>
+        
+        <div class="info legend layer-toggle-control">
+            <h4>Toggle Visibility</h4>
+            <div class="toggle-grid" id="layer-toggles"></div>
+        </div>
+      `;
+
+      const grid = wrapper.querySelector("#layer-toggles");
+      const mapLayers = [
+        { name: "Properties", layer: rentablePropertiesLayer },
+        { name: "Isochrone", layer: isochroneLayer },
+        { name: "Competitors", layer: competitorsLayer },
+        { name: "POIs & Amenities", layer: customPoiLayer },
+      ];
+
+      mapLayers.forEach((item) => {
+        const btn = document.createElement("button");
+        btn.className = "toggle-btn active";
+        btn.innerText = item.name;
+
+        btn.onclick = (e) => {
+          e.preventDefault();
+          if (map.hasLayer(item.layer)) {
+            map.removeLayer(item.layer);
+            btn.classList.remove("active");
+            btn.classList.add("inactive");
+          } else {
+            map.addLayer(item.layer);
+            btn.classList.remove("inactive");
+            btn.classList.add("active");
+          }
+        };
+        grid.appendChild(btn);
+      });
+
+      return wrapper;
     };
     legend.addTo(map);
   }

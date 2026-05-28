@@ -1,5 +1,4 @@
 :root {
-  /* Increased from 350px to 420px to prevent the POI row from wrapping */
   --sidebar-width: 420px;
 }
 
@@ -20,7 +19,6 @@ html {
     color 0.3s;
 }
 
-/* Screen Management */
 .screen {
   display: none;
   height: 100%;
@@ -40,7 +38,6 @@ html {
   width: 100vw;
 }
 
-/* Setup & Questionnaire Cards */
 .card {
   background: white;
   padding: 30px;
@@ -155,7 +152,6 @@ button.secondary:hover:not(:disabled) {
   margin-top: 6px;
 }
 
-/* Dashboard Layout */
 #sidebar {
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);
@@ -182,7 +178,6 @@ button.secondary:hover:not(:disabled) {
   margin-left: calc((var(--sidebar-width) + 6px) * -1);
 }
 
-/* Resizer Bar Styles */
 #sidebar-resizer {
   width: 6px;
   background: #e0e0e0;
@@ -202,7 +197,6 @@ button.secondary:hover:not(:disabled) {
   border-color: #005a9e;
 }
 
-/* Map Wrapper and Elements */
 #map-wrapper {
   flex-grow: 1;
   position: relative;
@@ -252,7 +246,6 @@ button.secondary:hover:not(:disabled) {
   background: #eee;
 }
 
-/* Sidebar Panels */
 .panel {
   background: #f9f9f9;
   padding: 15px;
@@ -281,7 +274,6 @@ button.secondary:hover:not(:disabled) {
   padding: 5px;
 }
 
-/* --- CSS Tooltip Logic --- */
 .info-icon {
   display: inline-block;
   color: #0078d7;
@@ -328,9 +320,9 @@ button.secondary:hover:not(:disabled) {
 }
 
 .add-poi-buttons {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
 .add-poi-buttons .radio-option::after {
@@ -366,7 +358,6 @@ button.secondary:hover:not(:disabled) {
   visibility: visible;
 }
 
-/* Rankings */
 .ranking-list {
   list-style: none;
   padding: 0;
@@ -390,29 +381,29 @@ button.secondary:hover:not(:disabled) {
   color: #333;
 }
 
-/* Custom Buttons inside Table / Map Tooltips */
 .focus-table-btn {
-    background: #4caf50;
-    font-size: 13px;
-    padding: 6px 10px;
+  background: #4caf50;
+  font-size: 13px;
+  padding: 6px 10px;
 }
 .focus-table-btn:hover {
-    background: #388e3c;
+  background: #388e3c;
 }
 .tooltip-btn {
-    margin-top: 8px;
-    padding: 5px 10px;
-    font-size: 12px;
-    background: #0078d7;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
+  margin-top: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  background: #0078d7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
 }
-.tooltip-btn:hover { background: #005a9e; }
+.tooltip-btn:hover {
+  background: #005a9e;
+}
 
-/* Modal */
 .modal {
   display: none;
   position: fixed;
@@ -436,9 +427,9 @@ button.secondary:hover:not(:disabled) {
 }
 
 .property-modal-content {
-    max-width: 450px;
-    height: auto;
-    margin-top: 15vh;
+  max-width: 450px;
+  height: auto;
+  margin-top: 15vh;
 }
 
 .close {
@@ -453,7 +444,6 @@ button.secondary:hover:not(:disabled) {
   color: black;
 }
 
-/* Table */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -478,48 +468,130 @@ th {
   top: 0;
 }
 
-/* =========================================
-   MAP LEGEND STYLES
-   ========================================= */
 .legend {
-    background: white;
-    padding: 12px 16px;
-    border-radius: 6px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-    font-size: 13px;
-    color: #333;
-    line-height: 1.6;
-    min-width: 180px;
-    transition: background 0.3s, color 0.3s;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 6px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  font-size: 13px;
+  color: #333;
+  line-height: 1.6;
+  min-width: 180px;
+  transition:
+    background 0.3s,
+    color 0.3s;
 }
 
-.legend h4 { margin: 0 0 10px 0; font-size: 14px; text-align: center;}
-.legend-item { display: flex; align-items: center; margin-bottom: 6px; }
-.legend-item img { margin-right: 10px; }
+.legend h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  text-align: center;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.legend-item img {
+  margin-right: 10px;
+}
 
 .legend-circle {
-    width: 14px; height: 14px; border-radius: 50%; display: inline-block; margin-right: 10px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 10px;
 }
-.legend-circle.competitor { background: #c49320; border: 1px solid #a87e1d; }
-.legend-circle.custom-poi { background: #780f65; border: 1px solid #c91ba9; }
+.legend-circle.competitor {
+  background: #c49320;
+  border: 1px solid #a87e1d;
+}
+.legend-circle.custom-poi {
+  background: #780f65;
+  border: 1px solid #c91ba9;
+}
 
 .legend-isochrone {
-    width: 16px; height: 16px; background: rgba(0, 120, 215, 0.1); border: 2px solid #0078d7; display: inline-block; margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  background: rgba(0, 120, 215, 0.1);
+  border: 2px solid #0078d7;
+  display: inline-block;
+  margin-right: 8px;
 }
 
-.gradient-container { flex-direction: column; align-items: stretch; margin-bottom: 12px; }
+.gradient-container {
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 12px;
+}
 .gradient-bar {
-    height: 12px;
-    background: linear-gradient(to right, hsl(0, 100%, 45%), hsl(50, 100%, 45%), hsl(100, 100%, 45%));
-    border-radius: 4px;
-    margin-bottom: 4px;
+  height: 12px;
+  background: linear-gradient(to right, hsl(0, 100%, 45%), hsl(50, 100%, 45%), hsl(100, 100%, 45%));
+  border-radius: 4px;
+  margin-bottom: 4px;
 }
-.gradient-labels { display: flex; justify-content: space-between; font-size: 11px; color: #666; font-weight: bold;}
+.gradient-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #666;
+  font-weight: bold;
+}
 
+.legend-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  pointer-events: none;
+}
 
-/* =========================================
-   DARK MODE OVERRIDES
-   ========================================= */
+.legend-wrapper > div {
+  pointer-events: auto;
+}
+
+.layer-toggle-control {
+  min-width: 180px;
+}
+
+.toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.toggle-btn {
+  background: #0078d7;
+  color: white;
+  border: 1px solid #005a9e;
+  padding: 8px 5px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+  text-align: center;
+  font-weight: bold;
+}
+
+.toggle-btn:hover {
+  background: #005a9e;
+}
+
+.toggle-btn.inactive {
+  background: #e0e0e0;
+  color: #555;
+  border-color: #ccc;
+}
+
+.toggle-btn.inactive:hover {
+  background: #d0d0d0;
+}
+
 body.dark-mode {
   background: #121212;
   color: #e0e0e0;
@@ -613,17 +685,25 @@ body.dark-mode .info-icon::after {
   color: #121212;
 }
 
-/* Dark Mode Legend */
 body.dark-mode .legend {
-    background: #1e1e1e;
-    color: #e0e0e0;
-    box-shadow: 0 1px 5px rgba(255,255,255,0.05);
+  background: #1e1e1e;
+  color: #e0e0e0;
+  box-shadow: 0 1px 5px rgba(255, 255, 255, 0.05);
 }
 body.dark-mode .gradient-labels {
-    color: #aaa;
+  color: #aaa;
 }
 
-/* Loading Overlay */
+body.dark-mode .toggle-btn.inactive {
+  background: #333;
+  color: #999;
+  border-color: #444;
+}
+
+body.dark-mode .toggle-btn.inactive:hover {
+  background: #444;
+}
+
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -660,7 +740,6 @@ body.dark-mode .loading-spinner {
   border-top: 5px solid #64b5f6;
 }
 
-/* Resizer Dark Mode Overrides */
 body.dark-mode #sidebar-resizer {
   background: #333;
   border-left-color: #222;
@@ -673,7 +752,6 @@ body.dark-mode #sidebar-resizer.active {
   border-color: #42a5f5;
 }
 
-/* Leaflet Dark Mode Popup/Tooltip Overrides */
 body.dark-mode .leaflet-popup-content-wrapper,
 body.dark-mode .leaflet-popup-tip {
   background: #2a2a2a;
@@ -684,7 +762,6 @@ body.dark-mode .leaflet-popup-content a {
   color: #64b5f6;
 }
 
-/* Changed popup pointer events for interactive tooltips */
 body.dark-mode .leaflet-tooltip {
   background: #2a2a2a;
   color: #e0e0e0;
