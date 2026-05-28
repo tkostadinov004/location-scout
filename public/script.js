@@ -195,6 +195,7 @@ async function initializeDashboard() {
   document.getElementById("btn-remove-poi").addEventListener("click", () => {
     activeCustomPoi = "";
     document.getElementById("custom-poi").value = "";
+    additional_pois = null;
     triggerRecalculation();
   });
 
@@ -571,6 +572,7 @@ async function triggerRecalculation() {
   }
 
   rentableGeoJSON = await apiFetchRentableObjects();
+  console.log(rentableGeoJSON);
   renderMapFeatures(rentableGeoJSON);
 }
 
