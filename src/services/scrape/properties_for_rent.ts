@@ -2,34 +2,15 @@
 
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { FetchedProperty } from "../../response/FetchedProperty";
 
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export class FetchedProperty {
-  lat: number | null = null;
-  lon: number | null = null;
-  name: string | null = null;
-  url: string | null = null;
-  address: string | null = null;
-  rent_eur: string | null = null;
-  rent_bgn: string | null = null;
-  area: number | null = null;
-}
+const categories: string[] = ["ofis", "magazin", "tyrgovski-obekt", "promishlen-imot", "zala", "sklad"];
 
-const categories: string[] = [
-  "ofis",
-  "magazin",
-  "tyrgovski-obekt",
-  "promishlen-imot",
-  "zala",
-  "sklad",
-];
-
-async function fetch_property_details(
-  property_url: string,
-): Promise<FetchedProperty | null> {
+async function fetch_property_details(property_url: string): Promise<FetchedProperty | null> {
   const full_url = `https://www.imoti.net${property_url}`;
   let result: FetchedProperty = new FetchedProperty();
   result.url = full_url;
@@ -73,9 +54,7 @@ async function fetch_property_details(
       }
     });
 
-    const area: string | null = $(
-      '.info-sidebar-box tr:has(td:first-child:contains("Квадратура")) td:last-child',
-    ).html();
+    const area: string | null = $('.info-sidebar-box tr:has(td:first-child:contains("Квадратура")) td:last-child').html();
     if (!area) return null;
     result.area = Number.parseInt(area);
 
@@ -86,18 +65,14 @@ async function fetch_property_details(
   }
 }
 
-async function fetch_properties_per_category(
-  category: string,
-): Promise<FetchedProperty[]> {
+async function fetch_properties_per_category(category: string): Promise<FetchedProperty[]> {
   let index = 0;
   let pages_count: number | undefined;
   let result: FetchedProperty[] = new Array();
   while (!pages_count || index < pages_count) {
     console.log(`${category} - page ${index + 1}`);
     try {
-      const page = await axios.get(
-        `https://www.imoti.net/bg/obiavi/r/dava-pod-naem/sofia/${category}?page=${++index}`,
-      );
+      const page = await axios.get(`https://www.imoti.net/bg/obiavi/r/dava-pod-naem/sofia/${category}?page=${++index}`);
       const $ = cheerio.load(page.data);
       if (!pages_count) {
         pages_count = Number.parseInt($(".last-page").html() ?? "1");
@@ -111,9 +86,7 @@ async function fetch_properties_per_category(
         }
       });
 
-      const fetched_properties: (FetchedProperty | null)[] = await Promise.all(
-        listings.map(async (link) => await fetch_property_details(link)),
-      );
+      const fetched_properties: (FetchedProperty | null)[] = await Promise.all(listings.map(async (link) => await fetch_property_details(link)));
       result = result.concat(fetched_properties.filter((fp) => fp != null));
     } catch (err) {
       console.error(`Error at page ${index}: \n ${err}`);
@@ -124,40 +97,29 @@ async function fetch_properties_per_category(
 
 export async function fetch_properties(): Promise<FetchedProperty[]> {
   console.log("Starting property fetch:");
-  const result: FetchedProperty[][] = await Promise.all(
-    categories.map(
-      async (category) => await fetch_properties_per_category(category),
-    ),
-  );
+  const result: FetchedProperty[][] = await Promise.all(categories.map(async (category) => await fetch_properties_per_category(category)));
   const flat_result: FetchedProperty[] = result.flat();
-  console.log(
-    `Property fetch finished! Total of ${flat_result.length} properties.`,
-  );
+  console.log(`Property fetch finished! Total of ${flat_result.length} properties.`);
 
   for (let index = 0; index < flat_result.length; index++) {
     if (index % 20 == 0) {
-      console.log(
-        `Reverse geocoding: ${index} / ${flat_result.length} completed.`,
-      );
+      console.log(`Reverse geocoding: ${index} / ${flat_result.length} completed.`);
     }
 
     await sleep(1000); // nominatim allows only 1 request per second
-    const reverse_geocoding_response = await axios.get(
-      `https://nominatim.openstreetmap.org/reverse`,
-      {
-        params: {
-          lat: flat_result[index].lat,
-          lon: flat_result[index].lon,
-          format: "json",
-        },
-        headers: {
-          "User-Agent": "PAWS (https://github.com/tkostadinov004/ragis)",
-        },
+    const reverse_geocoding_response = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
+      params: {
+        lat: flat_result[index].lat,
+        lon: flat_result[index].lon,
+        format: "json",
       },
-    );
+      headers: {
+        "User-Agent": "PAWS (https://github.com/tkostadinov004/ragis)",
+      },
+    });
 
     flat_result[index].address = reverse_geocoding_response.data.display_name;
   }
-  console.log("Reversed geocoding finished.");
+  console.log("Reverse geocoding finished.");
   return result.flat();
 }

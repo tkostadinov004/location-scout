@@ -1,4 +1,3 @@
-// --- State ---
 let currentBusinessType = "";
 let rentableGeoJSON = null;
 let activeCustomPoi = "";
@@ -8,15 +7,12 @@ let rating_preferences = new Array(3);
 let fetched_objects_of_same_type = null;
 let additional_pois = null;
 
-// Table Pagination State
 let tableFeatures = [];
 let currentPage = 1;
 const rowsPerPage = 20;
 
-// Need a global reference to find features when clicking the tooltip button
 let currentMapFeatures = [];
 
-// Leaflet specific
 let map;
 let lightTileLayer, darkTileLayer;
 let rentablePropertiesLayer, isochroneLayer, competitorsLayer, customPoiLayer;
@@ -41,14 +37,12 @@ const public_transport_icon = L.icon({
   popupAnchor: [0, -16],
 });
 
-// --- DOM Elements ---
 const screens = {
   setup: document.getElementById("setup-screen"),
   questionnaire: document.getElementById("questionnaire-screen"),
   dashboard: document.getElementById("dashboard-screen"),
 };
 
-// --- Loading Functions ---
 function showLoading() {
   document.getElementById("loading-overlay").style.display = "flex";
 }
@@ -57,7 +51,6 @@ function hideLoading() {
   document.getElementById("loading-overlay").style.display = "none";
 }
 
-// --- Input Validation Clear Event Listeners ---
 document.getElementById("business-type").addEventListener("input", function () {
   this.setCustomValidity("");
 });
@@ -80,24 +73,19 @@ document.getElementById("custom-poi").addEventListener("input", function () {
   this.setCustomValidity("");
 });
 
-// --- Initialization & Flow ---
-document
-  .getElementById("btn-next-questionnaire")
-  .addEventListener("click", () => {
-    const typeInputEl = document.getElementById("business-type");
-    const typeInput = typeInputEl.value.trim();
+document.getElementById("btn-next-questionnaire").addEventListener("click", () => {
+  const typeInputEl = document.getElementById("business-type");
+  const typeInput = typeInputEl.value.trim();
 
-    if (!typeInput) {
-      typeInputEl.setCustomValidity(
-        "Please enter the type of business you want to open.",
-      );
-      typeInputEl.reportValidity();
-      return;
-    }
+  if (!typeInput) {
+    typeInputEl.setCustomValidity("Please enter the type of business you want to open.");
+    typeInputEl.reportValidity();
+    return;
+  }
 
-    currentBusinessType = typeInput;
-    switchScreen("questionnaire");
-  });
+  currentBusinessType = typeInput;
+  switchScreen("questionnaire");
+});
 
 document.getElementById("btn-skip").addEventListener("click", async () => {
   initializeDashboard();
@@ -140,7 +128,6 @@ function switchScreen(screenName) {
   screens[screenName].classList.add("active");
 }
 
-// --- Dashboard & Map Logic ---
 async function initializeDashboard() {
   switchScreen("dashboard");
 
@@ -148,20 +135,13 @@ async function initializeDashboard() {
     map = L.map("map", { zoomControl: false }).setView([42.6977, 23.3219], 13);
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
-    lightTileLayer = L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      {
-        attribution: "© OpenStreetMap contributors",
-      },
-    );
+    lightTileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+    });
 
-    darkTileLayer = L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-      {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CartoDB</a>',
-      },
-    );
+    darkTileLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CartoDB</a>',
+    });
 
     lightTileLayer.addTo(map);
 
@@ -170,7 +150,6 @@ async function initializeDashboard() {
     customPoiLayer = L.layerGroup().addTo(map);
     rentablePropertiesLayer = L.layerGroup().addTo(map);
 
-    // Map Legend Control
     const legend = L.control({ position: "bottomleft" });
     legend.onAdd = function (map) {
       const div = L.DomUtil.create("div", "info legend");
@@ -201,37 +180,32 @@ async function initializeDashboard() {
     const customPoiInput = customPoiEl.value.trim();
 
     if (!customPoiInput) {
-      customPoiEl.setCustomValidity(
-        "Please enter a Point of Interest (e.g., 'Hospitals') before adding a rule.",
-      );
+      customPoiEl.setCustomValidity("Please enter a Point of Interest (e.g., 'Hospitals') before adding a rule.");
       customPoiEl.reportValidity();
       return;
     }
 
     activeCustomPoi = customPoiInput;
 
-    const customPoiFetchMode = document.querySelector(
-      "input[name='additional-poi-extraction']:checked",
-    );
-    activeCustomPoiFetchMode =
-      customPoiFetchMode.getAttribute("value").trim() == "fast";
+    const customPoiFetchMode = document.querySelector("input[name='additional-poi-extraction']:checked");
+    activeCustomPoiFetchMode = customPoiFetchMode.getAttribute("value").trim() == "fast";
     triggerRecalculation();
   });
 
-  document
-    .getElementById("btn-show-table")
-    .addEventListener("click", showModal);
+  document.getElementById("btn-remove-poi").addEventListener("click", () => {
+    activeCustomPoi = "";
+    document.getElementById("custom-poi").value = "";
+    triggerRecalculation();
+  });
 
-  // Close Modals logic
+  document.getElementById("btn-show-table").addEventListener("click", showModal);
+
   document.getElementById("close-modal").addEventListener("click", hideModal);
 
-  document
-    .getElementById("close-property-modal")
-    .addEventListener("click", () => {
-      document.getElementById("property-modal").style.display = "none";
-    });
+  document.getElementById("close-property-modal").addEventListener("click", () => {
+    document.getElementById("property-modal").style.display = "none";
+  });
 
-  // Close modals when clicking outside
   window.addEventListener("click", (e) => {
     if (e.target == document.getElementById("table-modal")) hideModal();
     if (e.target == document.getElementById("property-modal")) {
@@ -239,7 +213,6 @@ async function initializeDashboard() {
     }
   });
 
-  // Table Pagination Events
   document.getElementById("btn-prev-page").addEventListener("click", () => {
     if (currentPage > 1) {
       currentPage--;
@@ -253,7 +226,6 @@ async function initializeDashboard() {
     }
   });
 
-  // Sidebar Toggle
   const toggleBtn = document.getElementById("btn-toggle-sidebar");
   const sidebar = document.getElementById("sidebar");
 
@@ -269,7 +241,6 @@ async function initializeDashboard() {
     }, 300);
   });
 
-  // Theme Toggle Logic updating Font Awesome icons
   const themeBtn = document.getElementById("btn-theme-toggle");
   themeBtn.addEventListener("click", () => {
     isDarkMode = !isDarkMode;
@@ -287,7 +258,6 @@ async function initializeDashboard() {
   });
 }
 
-// --- NEW: Resizer Drag Logic ---
 const resizer = document.getElementById("sidebar-resizer");
 const root = document.documentElement;
 let isResizing = false;
@@ -326,22 +296,17 @@ document.addEventListener("mouseup", () => {
   }
 });
 
-// --- Globally accessible wrapper to trigger modal from tooltips ---
 window.triggerPropertyModal = function (featureId) {
-  const targetFeature = currentMapFeatures.find(
-    (f) => f.properties.id === featureId,
-  );
+  const targetFeature = currentMapFeatures.find((f) => f.properties.id === featureId);
   if (targetFeature) {
     openPropertyModal(targetFeature);
   }
 };
 
-// --- Map Rendering Logic ---
 function renderMapFeatures(geoJSON) {
   rentablePropertiesLayer.clearLayers();
   markerDictionary = {};
 
-  // Store features globally so tooltips can access them
   currentMapFeatures = geoJSON.features;
 
   L.geoJSON(geoJSON, {
@@ -358,7 +323,6 @@ function renderMapFeatures(geoJSON) {
         fillOpacity: 0.9,
       });
 
-      // The common HTML layout used for both hover tooltip and sticky popup
       const tooltipHtml = `
       <div style="text-align: center;">
           <b>${feature.properties.name}</b><br>
@@ -368,10 +332,8 @@ function renderMapFeatures(geoJSON) {
       </div>
       `;
 
-      // 1. Hover Tooltip
       marker.bindTooltip(tooltipHtml, { direction: "top", interactive: true });
 
-      // 2. Sticky Popup (Looks identical to tooltip, stays until user clicks outside)
       marker.bindPopup(tooltipHtml, {
         closeButton: false,
         autoPan: false,
@@ -379,12 +341,10 @@ function renderMapFeatures(geoJSON) {
       });
 
       marker.on("click", async () => {
-        // Center the map on the clicked property
         map.setView(latlng, 15);
 
         marker.bringToFront();
 
-        // Hide the hover tooltip so it doesn't overlap the sticky popup
         marker.closeTooltip();
         marker.openPopup();
 
@@ -400,20 +360,15 @@ function renderMapFeatures(geoJSON) {
   populateTable(geoJSON.features);
 }
 
-// Function to populate the centered HTML Modal
 function openPropertyModal(feature) {
   const props = feature.properties;
   document.getElementById("prop-name").innerText = props.name;
-  document.getElementById("prop-address").innerText =
-    props.address || "Data unavailable";
+  document.getElementById("prop-address").innerText = props.address || "Data unavailable";
 
-  document.getElementById("prop-rent").innerText =
-    `${props.rent_eur} ${!isNaN(props.rent_eur) ? "EUR" : ""} / ${props.rent_bgn} ${!isNaN(props.rent_bgn) ? "BGN" : ""}`;
+  document.getElementById("prop-rent").innerText = `${props.rent_eur} ${!isNaN(props.rent_eur) ? "EUR" : ""} / ${props.rent_bgn} ${!isNaN(props.rent_bgn) ? "BGN" : ""}`;
   document.getElementById("prop-area").innerText = props.area;
-  document.getElementById("prop-base-score").innerText =
-    props.base_score.toFixed(2);
-  document.getElementById("prop-total-score").innerText =
-    props.total_score.toFixed(2);
+  document.getElementById("prop-base-score").innerText = props.base_score.toFixed(2);
+  document.getElementById("prop-total-score").innerText = props.total_score.toFixed(2);
 
   document.getElementById("prop-link").href = props.url;
 
@@ -463,7 +418,7 @@ async function handleMarkerClick(feature, latlng) {
       return {
         type: "Feature",
         properties: feat.properties,
-        geometry: feat.properties.wkb_geometry_centroid, // Set the main geometry to the centroid
+        geometry: feat.properties.wkb_geometry_centroid,
       };
     });
     console.log(points);
@@ -490,7 +445,7 @@ async function handleMarkerClick(feature, latlng) {
       return {
         type: "Feature",
         properties: feat.properties,
-        geometry: feat.properties.wkb_geometry_centroid, // Set the main geometry to the centroid
+        geometry: feat.properties.wkb_geometry_centroid,
       };
     });
     console.log(points);
@@ -513,37 +468,19 @@ async function handleMarkerClick(feature, latlng) {
   }
 
   if (feature.properties.parks_in_isochrone) {
-    display_additional_pois(
-      feature,
-      feature.properties.parks_in_isochrone,
-      "park",
-      "park",
-    );
+    display_additional_pois(feature, feature.properties.parks_in_isochrone, "park", "park");
   }
 
   if (feature.properties.schools_in_isochrone) {
-    display_additional_pois(
-      feature,
-      feature.properties.schools_in_isochrone,
-      "school",
-      "school",
-    );
+    display_additional_pois(feature, feature.properties.schools_in_isochrone, "school", "school");
   }
   if (feature.properties.public_transport_stops_in_isochrone) {
-    display_additional_pois(
-      feature,
-      feature.properties.public_transport_stops_in_isochrone,
-      "public transport stop",
-      "public_transport",
-    );
+    display_additional_pois(feature, feature.properties.public_transport_stops_in_isochrone, "public transport stop", "public_transport");
   }
 }
 
-// --- Rankings & Table Logic ---
 function updateRankings(features) {
-  const sorted = [...features].sort(
-    (a, b) => b.properties.total_score - a.properties.total_score,
-  );
+  const sorted = [...features].sort((a, b) => b.properties.total_score - a.properties.total_score);
   const top5 = sorted.slice(0, 5);
   const worst5 = sorted.slice(-5).reverse();
 
@@ -567,9 +504,7 @@ function updateRankings(features) {
 }
 
 function populateTable(features) {
-  tableFeatures = [...features].sort(
-    (a, b) => b.properties.total_score - a.properties.total_score,
-  );
+  tableFeatures = [...features].sort((a, b) => b.properties.total_score - a.properties.total_score);
   currentPage = 1;
   renderTablePage();
 }
@@ -596,17 +531,12 @@ function renderTablePage() {
     tbody.appendChild(tr);
   });
 
-  // Update Page Indicator
   const totalPages = Math.ceil(tableFeatures.length / rowsPerPage) || 1;
-  document.getElementById("page-indicator").innerText =
-    `Page ${currentPage} of ${totalPages}`;
+  document.getElementById("page-indicator").innerText = `Page ${currentPage} of ${totalPages}`;
 
-  // Disable logic for prev/next buttons
   document.getElementById("btn-prev-page").disabled = currentPage === 1;
-  document.getElementById("btn-next-page").disabled =
-    end >= tableFeatures.length;
+  document.getElementById("btn-next-page").disabled = end >= tableFeatures.length;
 
-  // Add event listeners for the new "Focus" buttons
   document.querySelectorAll(".focus-table-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       const targetId = parseInt(e.target.getAttribute("data-id"));
@@ -616,11 +546,11 @@ function renderTablePage() {
 }
 
 function focusOnPropertyFromTable(id) {
-  hideModal(); // Closes the data table
+  hideModal();
   const marker = markerDictionary[id];
   if (marker) {
     map.setView(marker.getLatLng(), 15);
-    marker.fire("click"); // Simulates map click to fetch isochrones
+    marker.fire("click");
   }
 }
 
@@ -649,18 +579,13 @@ async function apiFetchRentableObjects() {
   const body = JSON.stringify({
     object_type: currentBusinessType,
     ratings: rating_preferences,
-    additional_criteria: Array.from(
-      document.querySelectorAll(".criteria-cb:checked"),
-    ).map((cb) => {
+    additional_criteria: Array.from(document.querySelectorAll(".criteria-cb:checked")).map((cb) => {
       return {
         type: cb.getAttribute("value"),
         value: true,
       };
     }),
-    custom_poi:
-      activeCustomPoi != ""
-        ? { value: activeCustomPoi, fast: activeCustomPoiFetchMode }
-        : null,
+    custom_poi: activeCustomPoi != "" ? { value: activeCustomPoi, fast: activeCustomPoiFetchMode } : null,
   });
 
   let response;
@@ -728,8 +653,7 @@ async function apiFetchRentableObjects() {
         isochrone: r.isochrone,
         parks_in_isochrone: r.parks_in_isochrone,
         schools_in_isochrone: r.schools_in_isochrone,
-        public_transport_stops_in_isochrone:
-          r.public_transport_stops_in_isochrone,
+        public_transport_stops_in_isochrone: r.public_transport_stops_in_isochrone,
       },
     })),
   };

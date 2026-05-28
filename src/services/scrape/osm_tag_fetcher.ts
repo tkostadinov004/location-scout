@@ -2,9 +2,7 @@
 
 import axios from "axios";
 
-export async function fetch_osm_tags(
-  query_string: string | undefined,
-): Promise<string[]> {
+export async function fetch_osm_tags(query_string: string | undefined): Promise<string[]> {
   const response = await axios.post(
     "https://api.groq.com/openai/v1/chat/completions",
     {
@@ -31,14 +29,12 @@ export async function fetch_osm_tags(
         "Content-Type": "application/json",
         Authorization: "Bearer " + process.env.GROQ_API_KEY,
       },
-    },
+    }
   );
 
-  return response.data.choices[0].message.content
-    .split(",")
-    .map((s: string) => {
-      const key = s.split("=")[0];
-      const value = s.split("=")[1];
-      return `"${key}"="${value}"`;
-    });
+  return response.data.choices[0].message.content.split(",").map((s: string) => {
+    const key = s.split("=")[0];
+    const value = s.split("=")[1];
+    return `"${key}"="${value}"`;
+  });
 }

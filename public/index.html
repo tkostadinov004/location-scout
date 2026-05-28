@@ -4,14 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Location Scout</title>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="styles.css" />
   </head>
 
@@ -19,14 +13,8 @@
     <div id="setup-screen" class="screen active">
       <div class="card">
         <h1>Location Scout</h1>
-        <label for="business-type"
-          >What type of business do you want to open?</label
-        >
-        <input
-          type="text"
-          id="business-type"
-          placeholder="e.g., Pharmacy, Supermarket"
-        />
+        <label for="business-type">What type of business do you want to open?</label>
+        <input type="text" id="business-type" placeholder="e.g., Pharmacy, Supermarket" />
         <button id="btn-next-questionnaire">Next</button>
       </div>
     </div>
@@ -124,57 +112,39 @@
           <div class="radio-grid">
             <div class="radio-option">
               <span class="radio-caption">very little</span>
-              <label
-                ><input type="radio" name="q-demographic" value="1" />1</label
-              >
+              <label><input type="radio" name="q-demographic" value="1" />1</label>
             </div>
             <div class="radio-option">
               <span class="radio-caption"></span>
-              <label
-                ><input type="radio" name="q-demographic" value="2" />2</label
-              >
+              <label><input type="radio" name="q-demographic" value="2" />2</label>
             </div>
             <div class="radio-option">
               <span class="radio-caption"></span>
-              <label
-                ><input type="radio" name="q-demographic" value="3" />3</label
-              >
+              <label><input type="radio" name="q-demographic" value="3" />3</label>
             </div>
             <div class="radio-option">
               <span class="radio-caption"></span>
-              <label
-                ><input type="radio" name="q-demographic" value="4" />4</label
-              >
+              <label><input type="radio" name="q-demographic" value="4" />4</label>
             </div>
             <div class="radio-option">
               <span class="radio-caption">average</span>
-              <label
-                ><input type="radio" name="q-demographic" value="5" />5</label
-              >
+              <label><input type="radio" name="q-demographic" value="5" />5</label>
             </div>
             <div class="radio-option">
               <span class="radio-caption"></span>
-              <label
-                ><input type="radio" name="q-demographic" value="6" />6</label
-              >
+              <label><input type="radio" name="q-demographic" value="6" />6</label>
             </div>
             <div class="radio-option">
               <span class="radio-caption"></span>
-              <label
-                ><input type="radio" name="q-demographic" value="7" />7</label
-              >
+              <label><input type="radio" name="q-demographic" value="7" />7</label>
             </div>
             <div class="radio-option">
               <span class="radio-caption"></span>
-              <label
-                ><input type="radio" name="q-demographic" value="8" />8</label
-              >
+              <label><input type="radio" name="q-demographic" value="8" />8</label>
             </div>
             <div class="radio-option">
               <span class="radio-caption">a lot</span>
-              <label
-                ><input type="radio" name="q-demographic" value="9" />9</label
-              >
+              <label><input type="radio" name="q-demographic" value="9" />9</label>
             </div>
           </div>
           <span class="field-error" id="q-demographic-error"></span>
@@ -190,80 +160,45 @@
       <div id="sidebar">
         <h2>
           Controls & Ranking
-          <i
-            class="fa-solid fa-circle-question info-icon"
-            data-tooltip="Manage your map view and see the top and bottom scored locations."
-          ></i>
+          <i class="fa-solid fa-circle-question info-icon" data-tooltip="Manage your map view and see the top and bottom scored locations."></i>
         </h2>
 
         <div class="panel">
           <h3>
             Additional Criteria
-            <i
-              class="fa-solid fa-circle-question info-icon"
-              data-tooltip="Select extra amenities that will increase the desirability (score) of a location."
-            ></i>
+            <i class="fa-solid fa-circle-question info-icon" data-tooltip="Select extra amenities that will increase the desirability (score) of a location."></i>
           </h3>
 
           <label
-            ><input type="checkbox" class="criteria-cb" value="park" /> Near
-            Parks
-            <i
-              class="fa-solid fa-circle-question info-icon"
-              data-tooltip="Boosts the score for objects close to green spaces."
-            ></i></label
+            ><input type="checkbox" class="criteria-cb" value="park" /> Near Parks
+            <i class="fa-solid fa-circle-question info-icon" data-tooltip="Boosts the score for objects close to green spaces."></i></label
           ><br />
           <label
-            ><input
-              type="checkbox"
-              class="criteria-cb"
-              value="public_transport" />
+            ><input type="checkbox" class="criteria-cb" value="public_transport" />
             Near Transit Stops
-            <i
-              class="fa-solid fa-circle-question info-icon"
-              data-tooltip="Boosts the score for properties with good public transport access."
-            ></i></label
+            <i class="fa-solid fa-circle-question info-icon" data-tooltip="Boosts the score for properties with good public transport access."></i></label
           ><br />
           <label
-            ><input type="checkbox" class="criteria-cb" value="school" /> Near
-            Schools
-            <i
-              class="fa-solid fa-circle-question info-icon"
-              data-tooltip="Boosts the score for properties in family-friendly neighborhoods."
-            ></i></label
+            ><input type="checkbox" class="criteria-cb" value="school" /> Near Schools
+            <i class="fa-solid fa-circle-question info-icon" data-tooltip="Boosts the score for properties in family-friendly neighborhoods."></i></label
           ><br />
 
           <div class="custom-criteria">
             <input type="text" id="custom-poi" placeholder="e.g., Hospitals" />
-            <i
-              class="fa-solid fa-circle-question info-icon"
-              data-tooltip="Type a custom Point of Interest (like 'Gym') to boost scores for nearby properties."
-            ></i>
+            <i class="fa-solid fa-circle-question info-icon" data-tooltip="Type a custom Point of Interest (like 'Gym') to boost scores for nearby properties."></i>
           </div>
           <div class="add-poi-buttons">
             <div class="radio-option">
               <span class="radio-caption"></span>
-              <label
-                ><input
-                  type="radio"
-                  name="additional-poi-extraction"
-                  value="slow"
-                />Slower</label
-              >
+              <label><input type="radio" name="additional-poi-extraction" value="slow" />Slower</label>
             </div>
             <div class="radio-option">
               <span class="radio-caption"></span>
-              <label
-                ><input
-                  type="radio"
-                  name="additional-poi-extraction"
-                  value="fast"
-                  checked
-                />Faster</label
-              >
+              <label><input type="radio" name="additional-poi-extraction" value="fast" checked />Faster</label>
             </div>
           </div>
-          <button id="btn-add-poi" style="margin-top: 10px;">Add poi</button>
+          <button id="btn-add-poi" style="margin-top: 10px">Add poi</button>
+          <button id="btn-remove-poi" style="margin-top: 10px">Remove poi</button>
         </div>
 
         <div class="panel">
@@ -274,9 +209,7 @@
           <ul id="worst-5-list" class="ranking-list"></ul>
         </div>
 
-        <button id="btn-show-table" style="width: 100%; margin-top: 10px">
-          View Full Data Table
-        </button>
+        <button id="btn-show-table" style="width: 100%; margin-top: 10px">View Full Data Table</button>
       </div>
 
       <div id="sidebar-resizer" title="Drag to resize menu"></div>
@@ -294,16 +227,18 @@
       <div class="modal-content property-modal-content">
         <span id="close-property-modal" class="close">&times;</span>
         <h2 id="prop-name">Property Name</h2>
-        <div style="line-height: 1.6;">
-            <p><strong>Address:</strong> <span id="prop-address"></span></p>
-            <p><strong>Area:</strong> <span id="prop-area"></span> m&sup2;</p>
-            <p><strong>Rent:</strong> <span id="prop-rent"></span></p>
-            <hr style="border:0; border-top: 1px solid #ddd; margin: 15px 0;" />
-            <p><strong>Base Score:</strong> <span id="prop-base-score"></span></p>
-            <p><strong>Total Score:</strong> <b id="prop-total-score" style="font-size: 1.2em; color: #0078d7;"></b></p>
-            <p style="margin-top: 20px;">
-                <a id="prop-link" href="#" target="_blank" style="background: #0078d7; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Agency Listing</a>
-            </p>
+        <div style="line-height: 1.6">
+          <p><strong>Address:</strong> <span id="prop-address"></span></p>
+          <p><strong>Area:</strong> <span id="prop-area"></span> m&sup2;</p>
+          <p><strong>Rent:</strong> <span id="prop-rent"></span></p>
+          <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0" />
+          <p><strong>Base Score:</strong> <span id="prop-base-score"></span></p>
+          <p><strong>Total Score:</strong> <b id="prop-total-score" style="font-size: 1.2em; color: #0078d7"></b></p>
+          <p style="margin-top: 20px">
+            <a id="prop-link" href="#" target="_blank" style="background: #0078d7; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-weight: bold"
+              >View Agency Listing</a
+            >
+          </p>
         </div>
       </div>
     </div>
@@ -321,15 +256,16 @@
               <th>Base Score</th>
               <th>Total Score</th>
               <th>Link</th>
-              <th>Action</th> </tr>
+              <th>Action</th>
+            </tr>
           </thead>
           <tbody></tbody>
         </table>
-        
-        <div id="pagination-controls" style="text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 15px;">
-           <button id="btn-prev-page" class="secondary">Previous</button>
-           <span id="page-indicator" style="font-weight: bold;">Page 1 of X</span>
-           <button id="btn-next-page" class="secondary">Next</button>
+
+        <div id="pagination-controls" style="text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 15px">
+          <button id="btn-prev-page" class="secondary">Previous</button>
+          <span id="page-indicator" style="font-weight: bold">Page 1 of X</span>
+          <button id="btn-next-page" class="secondary">Next</button>
         </div>
       </div>
     </div>
