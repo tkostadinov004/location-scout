@@ -220,7 +220,7 @@ export async function get_rentable_objects(objects_of_same_type_table_name: stri
 export async function get_rentable_objects_with_additional_pois(
   objects_of_same_type_table_name: string,
   additional_pois_table_name: string,
-  additional_pois_fetch_type: boolean,
+  is_fast_fetch: boolean,
   additional_criteria: AdditionalCriterion[]
 ): Promise<RentableObject[]> {
   objects_of_same_type_table_name = objects_of_same_type_table_name.replaceAll("-", "_");
@@ -257,7 +257,7 @@ export async function get_rentable_objects_with_additional_pois(
                 ${additional_criteria.find((p) => p.type == "public_transport") ? ", st_asgeojson(get_public_transport_centroids_stops_in_area(isochrone)) as public_transport_stops" : ""},    
                 st_asgeojson(additional_pois_in_isochrone) as additional_pois_in_isochrone, 
                 ${
-                  additional_pois_fetch_type
+                  is_fast_fetch
                     ? `st_distance(rp.wkb_geometry::geography, (select ap.wkb_geometry from additional_pois ap order by ap.wkb_geometry <-> rp.wkb_geometry limit 1)::geography) / 1000`
                     : `(case when cardinality(additional_poi_vertices_in_isochrone) > 0 then (select min(agg_cost) / 1000 from pgr_dijkstraCost('SELECT id, source, target, meters as cost FROM pedestrian_network_noded', rp.closest_vertex, rp.additional_poi_vertices_in_isochrone, false)) else null end)`
                 } as min_distance_to_additional_poi 

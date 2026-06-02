@@ -40,7 +40,7 @@ router.post("/scores", async (req, res) => {
 
     let ratings: number[] = req.body.ratings;
     if (!ratings || ratings.some((r) => r == null)) {
-      ratings = [1.667, 2.5, 1.5];
+      ratings = [1.667, 2.5, 1.5]; // corresponds to 50% customer importance, 30% rent importance, 20% isolation from similar objects importance
     }
     calculate_scores(rentables, await get_common_data(), ratings, additional_criteria, additional_poi_config != null);
 
