@@ -60,14 +60,14 @@ function clearQuestionError(questionId) {
   if (err) err.textContent = "";
 }
 
-document.querySelectorAll('input[name="q-traffic"]').forEach((input) => {
-  input.addEventListener("change", () => clearQuestionError("q-traffic"));
+document.querySelectorAll('input[name="q-cr"]').forEach((input) => {
+  input.addEventListener("change", () => clearQuestionError("q-cr"));
 });
-document.querySelectorAll('input[name="q-parking"]').forEach((input) => {
-  input.addEventListener("change", () => clearQuestionError("q-parking"));
+document.querySelectorAll('input[name="q-cs"]').forEach((input) => {
+  input.addEventListener("change", () => clearQuestionError("q-cs"));
 });
-document.querySelectorAll('input[name="q-demographic"]').forEach((input) => {
-  input.addEventListener("change", () => clearQuestionError("q-demographic"));
+document.querySelectorAll('input[name="q-rs"]').forEach((input) => {
+  input.addEventListener("change", () => clearQuestionError("q-rs"));
 });
 document.getElementById("custom-poi").addEventListener("input", function () {
   this.setCustomValidity("");
@@ -94,22 +94,22 @@ document.getElementById("btn-skip").addEventListener("click", async () => {
 });
 
 document.getElementById("btn-submit-q").addEventListener("click", async () => {
-  const q1El = document.querySelector('input[name="q-traffic"]:checked');
-  const q2El = document.querySelector('input[name="q-parking"]:checked');
-  const q3El = document.querySelector('input[name="q-demographic"]:checked');
+  const q1El = document.querySelector('input[name="q-cr"]:checked');
+  const q2El = document.querySelector('input[name="q-cs"]:checked');
+  const q3El = document.querySelector('input[name="q-rs"]:checked');
 
   if (!q1El) {
-    const err = document.getElementById("q-traffic-error");
+    const err = document.getElementById("q-cr-error");
     if (err) err.textContent = "Please answer this question, or click 'Skip'.";
     return;
   }
   if (!q2El) {
-    const err = document.getElementById("q-parking-error");
+    const err = document.getElementById("q-cs-error");
     if (err) err.textContent = "Please answer this question, or click 'Skip'.";
     return;
   }
   if (!q3El) {
-    const err = document.getElementById("q-demographic-error");
+    const err = document.getElementById("q-rs-error");
     if (err) err.textContent = "Please answer this question, or click 'Skip'.";
     return;
   }

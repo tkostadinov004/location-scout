@@ -33,9 +33,9 @@ router.post("/scores", async (req, res) => {
       rentables = await get_rentable_objects(objects_of_same_type_table, additional_criteria);
     }
 
-    // await remove_temp_table(objects_of_same_type_table);
+    await remove_temp_table(objects_of_same_type_table);
     if (additional_pois_table) {
-      //  await remove_temp_table(additional_pois_table);
+      await remove_temp_table(additional_pois_table);
     }
 
     let ratings: number[] = req.body.ratings;
