@@ -150,6 +150,12 @@ async function initializeDashboard() {
     customPoiLayer = L.layerGroup().addTo(map);
     rentablePropertiesLayer = L.layerGroup().addTo(map);
 
+    map.on("click", () => {
+      isochroneLayer.clearLayers();
+      competitorsLayer.clearLayers();
+      customPoiLayer.clearLayers();
+    });
+
     const legend = L.control({ position: "bottomleft" });
     legend.onAdd = function (map) {
       const wrapper = L.DomUtil.create("div", "legend-wrapper");
@@ -462,7 +468,7 @@ async function handleMarkerClick(feature, latlng) {
         geometry: feat.properties.wkb_geometry_centroid,
       };
     });
-    console.log(points);
+
     L.geoJSON(points, {
       pointToLayer: (feat, ll) => {
         const marker = L.circleMarker(ll, {
@@ -471,6 +477,7 @@ async function handleMarkerClick(feature, latlng) {
           color: "#a87e1d",
           weight: 1,
           fillOpacity: 0.6,
+          bubblingMouseEvents: false,
         });
         marker.bindTooltip(`Existing ${currentBusinessType}`, {
           direction: "top",
@@ -489,7 +496,7 @@ async function handleMarkerClick(feature, latlng) {
         geometry: feat.properties.wkb_geometry_centroid,
       };
     });
-    console.log(points);
+
     L.geoJSON(points, {
       pointToLayer: (feat, ll) => {
         const marker = L.circleMarker(ll, {
@@ -498,6 +505,7 @@ async function handleMarkerClick(feature, latlng) {
           color: "#c91ba9",
           weight: 1,
           fillOpacity: 0.6,
+          bubblingMouseEvents: false,
         });
         marker.bindTooltip(`Existing ${activeCustomPoi}`, {
           direction: "top",
@@ -563,7 +571,7 @@ function renderTablePage() {
     tr.innerHTML = `
         <td>${feat.properties.name}</td>
         <td>${feat.properties.rent_eur} ${!isNaN(feat.properties.rent_eur) ? "EUR" : ""} / ${feat.properties.rent_bgn} ${!isNaN(feat.properties.rent_bgn) ? "BGN" : ""}</td>
-        <td>${feat.properties.area} sqm</td>
+        <td>${feat.properties.area} m2</td>
         <td>${feat.properties.base_score.toFixed(2)}</td>
         <td>${feat.properties.total_score.toFixed(2)}</td>
         <td><a href="${feat.properties.url}" target="_blank">View</a></td>
@@ -612,7 +620,6 @@ async function triggerRecalculation() {
   }
 
   rentableGeoJSON = await apiFetchRentableObjects();
-  console.log(rentableGeoJSON);
   renderMapFeatures(rentableGeoJSON);
 }
 
