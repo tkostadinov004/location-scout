@@ -135,7 +135,7 @@ async function initializeDashboard() {
     map = L.map("map", { zoomControl: false }).setView([42.6977, 23.3219], 13);
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
-    lightTileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    lightTileLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
       attribution: "© OpenStreetMap contributors",
     });
 
@@ -455,9 +455,11 @@ async function handleMarkerClick(feature, latlng) {
   customPoiLayer.clearLayers();
 
   const isochroneData = JSON.parse(feature.properties.isochrone);
+  const hue = feature.properties.total_score * 100;
+  const color = `hsl(${hue}, 100%, 35%)`;
   L.geoJSON(isochroneData, {
     interactive: false,
-    style: { color: "#0078d7", weight: 2, fillOpacity: 0.1 },
+    style: { color: color, weight: 2, fillOpacity: 0.1 },
   }).addTo(isochroneLayer);
 
   if (fetched_objects_of_same_type) {
