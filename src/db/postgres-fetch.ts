@@ -45,7 +45,7 @@ async function get_min_max_rents(): Promise<number[]> {
   try {
     conn = await pool.connect();
     const res = await conn.query(`
-          select min(rent_per_m2_eur) as min_rent, max(rent_per_m2_eur) as max_rent 
+          select ln(min(rent_per_m2_eur)) as min_rent, ln(max(rent_per_m2_eur)) as max_rent 
           from rentable_properties 
           where rent_per_m2_eur is not null;
       `);

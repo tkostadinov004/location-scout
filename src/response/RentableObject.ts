@@ -5,7 +5,7 @@ export class RentableObject {
   name: string = "";
   url: string = "";
   address: string = "";
-  rent_eur: string | number = 0;
+  rent_eur: string | null = null;
   rent_bgn: string | number = 0;
   area: number = 0;
   approximate_customer_count: number = 0;

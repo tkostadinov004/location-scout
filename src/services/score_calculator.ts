@@ -20,7 +20,7 @@ function calculate_base_score(r: RentableObject, weights: number[], common_data:
   const customers_score: number = Math.log(1 + r.approximate_customer_count) / Math.log(1 + common_data.total_sofia_population);
   let rent_score: number = 0;
   if (r.rent_per_m2_eur) {
-    rent_score = 1 - (r.rent_per_m2_eur * 1.0 - common_data.min_rent) / (common_data.max_rent - common_data.min_rent);
+    rent_score = 1 - (Math.log(r.rent_per_m2_eur) - common_data.min_rent) / (common_data.max_rent - common_data.min_rent);
   }
   const same_type_objects_score: number = 1.0 / (1 + r.objects_of_same_type_in_isochrone_count / r.isochrone_area);
 
