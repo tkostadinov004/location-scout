@@ -368,6 +368,7 @@ function renderMapFeatures(geoJSON) {
         weight: 1,
         opacity: 1,
         fillOpacity: 0.9,
+        pane: "markerPane",
       });
 
       const tooltipHtml = `
@@ -458,8 +459,14 @@ async function handleMarkerClick(feature, latlng) {
   const hue = feature.properties.total_score * 100;
   const color = `hsl(${hue}, 100%, 35%)`;
   L.geoJSON(isochroneData, {
-    interactive: false,
+    interactive: true,
+    bubblingMouseEvents: false,
     style: { color: color, weight: 2, fillOpacity: 0.1 },
+    onEachFeature: (feat, layer) => {
+      layer.on("click", () => {
+        map.closePopup();
+      });
+    },
   }).addTo(isochroneLayer);
 
   if (fetched_objects_of_same_type) {
