@@ -114,7 +114,7 @@ export async function fetch_properties(): Promise<FetchedProperty[]> {
         format: "json",
       },
       headers: {
-        "User-Agent": "PAWS (https://github.com/tkostadinov004/ragis)",
+        "User-Agent": "PAWS (https://github.com/tkostadinov004/location-scout)",
       },
     });
 

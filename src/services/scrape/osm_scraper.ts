@@ -26,8 +26,8 @@ export async function scrape_osm(osm_tags: string[]): Promise<FeatureCollection<
 
   const overpass_response = await retry_client.post("https://overpass-api.de/api/interpreter", `data=${encodeURIComponent(overpass_query)}`, {
     headers: {
-      "User-Agent": "PAWS (https://github.com/tkostadinov004/ragis)",
-      Referer: "https://github.com/tkostadinov004/ragis",
+      "User-Agent": "PAWS (https://github.com/tkostadinov004/location-scout)",
+      Referer: "https://github.com/tkostadinov004/location-scout",
     },
   });
   return osmtogeojson(overpass_response.data);
